@@ -289,4 +289,51 @@ lab.experiment('query (OpenAPI)', () => {
     const isValid = await Validate.test(response.result);
     expect(isValid).to.be.true();
   });
+
+  lab.test('required object query param preserves required flag', async () => {
+    const testRoutes = [
+      {
+        method: 'GET',
+        path: '/requiredFilter',
+        options: {
+          tags: ['api'],
+          handler: () => {},
+          validate: {
+            query: Joi.object({
+              filter: Joi.object({
+                status: Joi.string()
+              }).required()
+            })
+          }
+        }
+      }
+    ];
+
+    const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
+    const response = await server.inject({ method: 'GET', url: '/openapi.json' });
+    expect(response.statusCode).to.equal(200);
+
+    expect(response.result.paths['/requiredFilter'].get.parameters).to.equal([
+      {
+        name: 'filter',
+        in: 'query',
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                status: {
+                  type: 'string'
+                }
+              }
+            }
+          }
+        }
+      }
+    ]);
+
+    const isValid = await Validate.test(response.result);
+    expect(isValid).to.be.true();
+  });
 });
