@@ -160,12 +160,17 @@ lab.experiment('query (OpenAPI)', () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
     expect(response.statusCode).to.equal(200);
+    // OAS v3.0: object query params use content-based JSON encoding
     expect(response.result.paths['/emptyobject'].get.parameters).to.equal([
       {
         name: 'objParam',
         in: 'query',
-        schema: {
-          type: 'object'
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object'
+            }
+          }
         }
       }
     ]);
@@ -174,11 +179,15 @@ lab.experiment('query (OpenAPI)', () => {
       {
         name: 'objParam',
         in: 'query',
-        schema: {
-          type: 'object',
-          properties: {
-            stringParam: {
-              type: 'string'
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                stringParam: {
+                  type: 'string'
+                }
+              }
             }
           }
         }
@@ -221,6 +230,102 @@ lab.experiment('query (OpenAPI)', () => {
               stringParam: {
                 type: 'string',
                 description: 'String param description'
+              }
+            }
+          }
+        }
+      }
+    ]);
+
+    const isValid = await Validate.test(response.result);
+    expect(isValid).to.be.true();
+  });
+
+  lab.test('labeled object query param creates $ref definition', async () => {
+    const testRoutes = [
+      {
+        method: 'GET',
+        path: '/labeled',
+        options: {
+          tags: ['api'],
+          handler: () => {},
+          validate: {
+            query: Joi.object({
+              filter: Joi.object({
+                name: Joi.string(),
+                age: Joi.number()
+              }).label('MyFilter')
+            })
+          }
+        }
+      }
+    ];
+
+    const server = await Helper.createServer({ OAS: 'v3.0', definitionPrefix: 'useLabel' }, testRoutes);
+    const response = await server.inject({ method: 'GET', url: '/openapi.json' });
+    expect(response.statusCode).to.equal(200);
+
+    // labeled object query param should produce a $ref in content encoding
+    expect(response.result.paths['/labeled'].get.parameters).to.equal([
+      {
+        name: 'filter',
+        in: 'query',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/MyFilter'
+            }
+          }
+        }
+      }
+    ]);
+
+    // the definition should exist in components.schemas
+    expect(response.result.components.schemas.MyFilter).to.exist();
+    expect(response.result.components.schemas.MyFilter.type).to.equal('object');
+    expect(response.result.components.schemas.MyFilter.properties.name.type).to.equal('string');
+    expect(response.result.components.schemas.MyFilter.properties.age.type).to.equal('number');
+
+    const isValid = await Validate.test(response.result);
+    expect(isValid).to.be.true();
+  });
+
+  lab.test('required object query param preserves required flag', async () => {
+    const testRoutes = [
+      {
+        method: 'GET',
+        path: '/requiredFilter',
+        options: {
+          tags: ['api'],
+          handler: () => {},
+          validate: {
+            query: Joi.object({
+              filter: Joi.object({
+                status: Joi.string()
+              }).required()
+            })
+          }
+        }
+      }
+    ];
+
+    const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
+    const response = await server.inject({ method: 'GET', url: '/openapi.json' });
+    expect(response.statusCode).to.equal(200);
+
+    expect(response.result.paths['/requiredFilter'].get.parameters).to.equal([
+      {
+        name: 'filter',
+        in: 'query',
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                status: {
+                  type: 'string'
+                }
               }
             }
           }
