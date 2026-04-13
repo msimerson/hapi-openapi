@@ -1,7 +1,7 @@
 {
   "name": "@msimerson/hapi-openapi",
   "description": "A swagger documentation UI generator plugin for hapi",
-  "version": "17.3.2",
+  "version": "17.4.0",
   "author": "Glenn Jones (https://github.com/glennjones)",
   "contributors": [
     "Robert McGuinness (https://github.com/robmcguinness)",
