@@ -52,7 +52,7 @@ helper.createServerMultiple = async (swaggerOptions1, swaggerOptions2, routes, s
       options: swaggerOptions1
     },
     {
-      routes: { prefix: '/' + swaggerOptions1.routeTag || 'api1' }
+      routes: { prefix: `/${swaggerOptions1.routeTag || 'api1'}` }
     }
   );
 
@@ -62,7 +62,7 @@ helper.createServerMultiple = async (swaggerOptions1, swaggerOptions2, routes, s
       options: swaggerOptions2
     },
     {
-      routes: { prefix: '/' + swaggerOptions2.routeTag || 'api2' }
+      routes: { prefix: `/${swaggerOptions2.routeTag || 'api2'}` }
     }
   );
 
