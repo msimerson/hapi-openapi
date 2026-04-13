@@ -382,7 +382,7 @@ lab.experiment('builder', () => {
   });
 
   lab.test('debug : true', () => {
-    expect(logs).to.equal(['hapi-swagger', 'validation', 'info']);
+    expect(logs).to.equal(['hapi-openapi', 'validation', 'info']);
   });
 });
 

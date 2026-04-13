@@ -19,7 +19,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 7
               }
             }
@@ -32,7 +32,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 5
               }
             }
@@ -45,7 +45,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 4
               }
             }
@@ -58,7 +58,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 1
               }
             }
@@ -71,7 +71,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 2
               }
             }
@@ -84,7 +84,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 3
               }
             }
@@ -97,7 +97,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 7
               }
             }
@@ -110,7 +110,7 @@ versions.forEach((version) => {
             tags: ['api'],
             handler: Helper.defaultHandler,
             plugins: {
-              'hapi-swagger': {
+              '@msimerson/hapi-openapi': {
                 order: 6
               }
             }

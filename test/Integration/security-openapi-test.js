@@ -42,7 +42,7 @@ lab.experiment('security (OpenAPI)', () => {
       options: {
         handler: Helper.defaultHandler,
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             payloadType: 'form',
             security: [{ api_key: [] }]
           }
@@ -61,7 +61,7 @@ lab.experiment('security (OpenAPI)', () => {
       options: {
         handler: Helper.defaultHandler,
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             payloadType: 'form',
             security: [
               {

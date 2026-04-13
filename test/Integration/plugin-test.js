@@ -4,7 +4,8 @@ const Hoek = require('@hapi/hoek');
 const Inert = require('@hapi/inert');
 const Joi = require('joi');
 const Lab = require('@hapi/lab');
-const HapiSwagger = require('../../lib/index.js');
+const Pack = require('../../package.json');
+const HapiOpenapi = require('../../lib/index.js');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
@@ -34,18 +35,18 @@ lab.experiment('plugin', () => {
   lab.test('plug-in register no inert dependency', async () => {
     try {
       const server = new Hapi.Server();
-      await server.register([HapiSwagger]);
+      await server.register([HapiOpenapi]);
       server.route(routes);
       await server.start();
     } catch (err) {
-      expect(err.message).to.equal('Plugin hapi-swagger missing dependency @hapi/inert');
+      expect(err.message).to.equal(`Plugin ${Pack.name} missing dependency @hapi/inert`);
     }
   });
 
   lab.test('plug-in register no options', async () => {
     try {
       const server = new Hapi.Server();
-      await server.register([Inert, HapiSwagger]);
+      await server.register([Inert, HapiOpenapi]);
       server.route(routes);
       await server.start();
       expect(server).to.be.an.object();
@@ -297,7 +298,7 @@ lab.experiment('plugin', () => {
     await server.register([
       Inert,
       {
-        plugin: HapiSwagger,
+        plugin: HapiOpenapi,
         routes: {
           prefix: '/implicitPrefix'
         },
@@ -458,7 +459,7 @@ lab.experiment('plugin', () => {
           handler: Helper.defaultHandler,
           tags: ['api'],
           plugins: {
-            'hapi-swagger': {
+            '@msimerson/hapi-openapi': {
               'x-meta': {
                 test1: true,
                 test2: 'test',
@@ -491,7 +492,7 @@ lab.experiment('plugin', () => {
           handler: Helper.defaultHandler,
           tags: ['api'],
           plugins: {
-            'hapi-swagger': {
+            '@msimerson/hapi-openapi': {
               'x-code-samples': {
                 lang: 'JavaScript',
                 source: 'console.log("Hello World");'

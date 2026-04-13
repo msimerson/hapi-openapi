@@ -234,7 +234,7 @@ module.exports = [
         'Adds together two numbers and return the result. As an option you can have the result return as a binary number.'
       ],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           consumes: ['application/json']
         }
       },
@@ -257,7 +257,7 @@ module.exports = [
       notes: ['Subtracts the second number from the first and return the result'],
       tags: ['api'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: resultHTTPStatus
         }
       },
@@ -279,7 +279,7 @@ module.exports = [
       notes: ['Divides the first number by the second and return the result'],
       tags: ['api'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: resultHTTPStatus,
           order: 3
         }
@@ -301,7 +301,7 @@ module.exports = [
       description: 'Multiple',
       notes: ['Multiples the two numbers together and return the result'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: resultHTTPStatus,
           order: 2
         }
@@ -324,7 +324,7 @@ module.exports = [
       description: 'List sums',
       notes: ['List the sums in the data store'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: listHTTPStatus
         }
       },
@@ -346,7 +346,7 @@ module.exports = [
       description: 'Get sum',
       notes: ['Get a sum from the store'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: sumHTTPStatus
         }
       },
@@ -366,7 +366,7 @@ module.exports = [
       description: 'Add sum',
       notes: ['Adds a sum to the data store'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: sumHTTPStatus,
           payloadType: 'form',
           produces: ['application/json'],
@@ -399,7 +399,7 @@ module.exports = [
       description: 'Update sum',
       notes: ['Update a sum in our data store'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: sumHTTPStatus,
           payloadType: 'form'
         }
@@ -433,7 +433,7 @@ module.exports = [
       description: 'Delete sums',
       notes: ['Delete a sums from the data store'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: sumHTTPStatus
         }
       },
@@ -453,7 +453,7 @@ module.exports = [
       description: 'Add sum, with JSON object',
       notes: ['Adds a sum to the data store, using JSON object in payload'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: sumHTTPStatus
         }
       },
@@ -487,7 +487,7 @@ module.exports = [
       description: 'Add sum, with JSON file',
       notes: ['Adds a sum to the data store, using JSON object in a uploaded file'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           responses: fileHTTPStatus,
           payloadType: 'form',
           consumes: ['multipart/form-data'],

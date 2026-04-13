@@ -3,9 +3,8 @@
 const Hapi = require('@hapi/hapi');
 const Jwt = require('jsonwebtoken');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 
 const swaggerOptions = {
   info: {
@@ -53,9 +52,8 @@ const ser = async () => {
   await server.register([
     require('hapi-auth-jwt2'),
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

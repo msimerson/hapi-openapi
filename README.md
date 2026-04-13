@@ -1,10 +1,10 @@
-# hapi-swagger
+# hapi-openapi
 
 This is a [OpenAPI (aka Swagger)](https://openapis.org/) plug-in for [Hapi](https://hapi.dev/) When installed it will self document the API interface
 in a project.
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/msimerson/hapi-openapi/ci.yml?style=for-the-badge)
-[![npm downloads](https://img.shields.io/npm/dm/hapi-swagger.svg?style=for-the-badge)](https://www.npmjs.com/package/hapi-swagger)
+[![npm downloads](https://img.shields.io/npm/dm/hapi-openapi.svg?style=for-the-badge)](https://www.npmjs.com/package/hapi-openapi)
 [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://raw.github.com/msimerson/hapi-openapi/master/license.txt)
 
 ## Compatibility
@@ -27,21 +27,19 @@ in a project.
 You can add the module to your Hapi using npm:
 
 ```bash
-> npm install hapi-swagger --save
+> npm install @msimerson/hapi-openapi --save
 ```
 
-**hapi-swagger** no longer bundles `joi` to fix [#648](https://github.com/hapi-swagger/hapi-swagger/issues/648). Install **hapi-swagger** with peer dependencies using:
+**hapi-openapi** no longer bundles `joi` to fix [#648](https://github.com/hapi-swagger/hapi-swagger/issues/648). Install **hapi-openapi** with peer dependencies using:
 
 ```bash
-npx install-peerdeps hapi-swagger
+npx install-peerdeps @msimerson/hapi-openapi
 ```
 
-If you want to view the documentation from your API you will also need to install the `inert` and `vision` plugs-ins which support templates and static
-content serving.
+If you want to view the documentation from your API you will also need to install the `inert` plugs-in which support templates and static content serving.
 
 ```bash
 > npm install @hapi/inert --save
-> npm install @hapi/vision --save
 ```
 
 ## Documentation
@@ -57,8 +55,7 @@ You will also add the routes for you API as describe on [hapi website](https://h
 ```Javascript
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
-const HapiSwagger = require('hapi-swagger');
+const HapiOpenapi = require('@msimerson/hapi-openapi');
 const Pack = require('./package');
 
 (async () => {
@@ -78,7 +75,7 @@ const Pack = require('./package');
         Inert,
         Vision,
         {
-            plugin: HapiSwagger,
+            plugin: HapiOpenapi,
             options: swaggerOptions
         }
     ]);
@@ -128,23 +125,23 @@ so the the full URL for the above options would be `http://localhost:3000/docume
 
 ### Typescript
 
-**hapi-swagger** exports its own typescript definition file that can be used when registering the plugin with **Hapi**. See example below:
+**hapi-openapi** exports its own typescript definition file that can be used when registering the plugin with **Hapi**. See example below:
 
 #### Install Typescript Definition Files
 
 ```sh
-npm i @types/hapi__hapi @types/hapi__inert @types/hapi__joi @types/hapi__vision @types/node hapi-swagger --save-dev
+npm i @types/hapi__hapi @types/hapi__inert @types/hapi__joi @types/node @msimerson/hapi-openapi --save-dev
 ```
 
 #### Register Plugin with Typescript
 
 ```typescript
 import * as Hapi from '@hapi/hapi';
-import * as HapiSwagger from 'hapi-swagger';
+import * as HapiOpenapi from '@msimerson/hapi-openapi';
 
 // code omitted for brevity
 
-const swaggerOptions: HapiSwagger.RegisterOptions = {
+const swaggerOptions: HapiOpenapi.RegisterOptions = {
     info: {
         title: 'Test API Documentation'
     }
@@ -158,7 +155,7 @@ const plugins: Array<Hapi.ServerRegisterPluginObject<any>> = [
         plugin: Vision
     },
     {
-        plugin: HapiSwagger,
+        plugin: HapiOpenapi,
         options: swaggerOptions
     }
 ];
@@ -172,6 +169,6 @@ Read the [contributing guidelines](./.github/CONTRIBUTING.md) for details.
 
 ## Credits
 
-**hapi-swagger** was created by [Glenn Jones](https://github.com/glennjones) in 2013. Over the years it was maintained by [Robert McGuinness](https://github.com/robmcguinness) and many community contributors. The upstream repository at [hapi-swagger/hapi-swagger](https://github.com/hapi-swagger/hapi-swagger) is now archived.
+**hapi-openapi** was created by [Glenn Jones](https://github.com/glennjones) in 2013. Over the years it was maintained by [Robert McGuinness](https://github.com/robmcguinness) and many community contributors. The upstream repository at [msimerson/hapi-openapi](https://github.com/msimerson/hapi-openapi) is now archived.
 
 This fork ([msimerson/hapi-openapi](https://github.com/msimerson/hapi-openapi)) is maintained by [Matt Simerson](https://github.com/msimerson).

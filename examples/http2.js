@@ -1,19 +1,18 @@
-// `http2.js` - how to use hapi-swagger with http2
+// `http2.js` - how to use hapi-openapi with http2
 'use strict';
 
 const Fs = require('fs');
 const Path = require('path');
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 const Http2 = require('http2');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 const Pack = require('../package');
 const Routes = require('./assets/routes-simple.js');
 
 /**
- * @type {HapiSwagger.RegisterOptions}
+ * @type {HapiOpenapi.RegisterOptions}
  */
 const swaggerOptions = {
   basePath: '/v1',
@@ -23,13 +22,13 @@ const swaggerOptions = {
     title: 'Test API Documentation',
     description: 'This is a sample example of API documentation.',
     version: Pack.version,
-    termsOfService: 'https://github.com/hapi-swagger/hapi-swagger/',
+    termsOfService: 'https://github.com/msimerson/hapi-openapi/',
     contact: {
       email: 'glennjonesnet@gmail.com'
     },
     license: {
       name: 'MIT',
-      url: 'https://raw.githubusercontent.com/hapi-swagger/hapi-swagger/master/license.txt'
+      url: 'https://raw.githubusercontent.com/msimerson/hapi-openapi/master/license.txt'
     }
   },
   tags: [
@@ -80,9 +79,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

@@ -4,102 +4,102 @@
 
 ### URLs and plugin
 
--   `schemes`: (array) The transfer protocol of the API ie `['http']`
--   `host`: (string) The host (name or IP) serving the API including port if any i.e. `localhost:8080`
--   `auth`: (boolean, string or object) defines security strategy to use for plugin resources - default: `false`,
--   `cors`: (boolean) whether the swagger.json routes is served with cors support - default: `false`,
--   `validate`: (object) sets validation rules for all routes created by the plugin - not set by default
+- `schemes`: (array) The transfer protocol of the API ie `['http']`
+- `host`: (string) The host (name or IP) serving the API including port if any i.e. `localhost:8080`
+- `auth`: (boolean, string or object) defines security strategy to use for plugin resources - default: `false`,
+- `cors`: (boolean) whether the swagger.json routes is served with cors support - default: `false`,
+- `validate`: (object) sets validation rules for all routes created by the plugin - not set by default
 
 #### JSON (JSON endpoint needed to create UI)
 
--   `jsonPath`: (string) The path of the JSON endpoint that describes the API - default: `/swagger.json`
--   `jsonRoutePath`: (string) The path for the controller that serves the JSON that describes the API. If jsonPath is specified and this parameter is not, it will take jsonPath value. Useful when behind a reverse proxy - default: `/swagger.json`
--   `basePath`: (string) The base path from where the API starts i.e. `/v2/` (note, needs to start with `/`) - default: `/`
--   `pathPrefixSize`: (number) Selects what segment of the URL path is used to group endpoints - default: `1`
--   `pathReplacements` : (array) methods for modifying path and group names in documentation - default: `[]`
--   `OAS`: OpenAPI version to use. Options are `v2` or `v3.0`. Default is `v2`.
--   `info`
-    -   `title`: (string) The title of the application - default: `API documentation`
-    -   `version`: (string) The version number of the API - default: `0.0.1`
-    -   `description`: (string) A short description of the application
-    -   `termsOfService`: (string) A URL to the Terms of Service of the API
-    -   `contact`
-        -   `name`: (string) A contact name for the API
-        -   `url`: (string) A URL pointing to the contact information. MUST be formatted as a URL
-        -   `email`: (string) A email address of the contact person/organization. MUST be formatted as an email address.
-    -   `license`
-        -   `name` (string) The name of the license used for the API
-        -   `url` (string) The URL to the license used by the API. MUST be formatted as a URL
-    -   `x-*` (any): any property or object with a key starting with `x-*` is included as such in the `info` section of the object returned by the JSON endpoint. This allows custom properties to be defined as options and copied as such.
--   `tags`: (array) containing array of [Tag Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#tagObject) used to group endpoints in UI. No defaults are provided.
--   `routeTag`: (string | function) Tag used by `hapi-swagger` to collect the routes that should be included in the OpenAPI swagger definition. Can also take a function receiving route tags and returning boolean, for example `(tags) => !tags.includes('private')` - default: `api`
--   `grouping`: (string) how to create grouping of endpoints value either `path` or `tags` - default: `path`
--   `tagsGroupingFilter`: (function) A function used to determine which tags should be used for grouping (when `grouping` is set to `tags`) - default: `(tag) => tag !== 'api'`
--   `securityDefinitions:`: (object) Containing [Security Definitions Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject). No defaults are provided.
--   `security`: (array) Containing [Security Requirement Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#securityRequirementObject). No defaults are provided.
--   `payloadType`: (string) How payload parameters are displayed `json` or `form` - default: `json`
--   `documentationRouteTags`: (string or array) Add hapi tags to internal `hapi-swagger` routes - default: `[]`
--   `documentationRoutePlugins`: (object) Add hapi plugins to internal `hapi-swagger` routes - default: `{}`
--   `consumes`: (array) The mime types consumed - default: `['application/json']`
--   `produces`: (array) The mime types produced - default: `['application/json']`
--   `xProperties`: Adds JOI data that cannot be use directly by swagger as metadata - default: `true`
--   `reuseDefinitions`: Reuse of definition models to save space. To really reuse the definition model you need to keep the definition and labels the same. - default: `true`
--   `definitionPrefix`: Dynamic naming convention. `default` or `useLabel` - default: `default`
--   `deReference`: Dereferences JSON output - default: `false`,
--   `debug`: Validates the JSON output against swagger specification - default: `false`
--   `x-*` (any): any property or object with a key starting with `x-*` is included in the swagger definition (similar to `x-*` options in the `info` object).
--   `authAccessFormatter`: (function) A function used to format authentication details such as entity or scopes.
--   `oauthOptions`: [TODO](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/oauth2.md)
--   `customSwaggerFile`: (json) Custom JSON file that follows Swagger specifications - default: `Auto generated by Joi Schema`
+- `jsonPath`: (string) The path of the JSON endpoint that describes the API - default: `/swagger.json`
+- `jsonRoutePath`: (string) The path for the controller that serves the JSON that describes the API. If jsonPath is specified and this parameter is not, it will take jsonPath value. Useful when behind a reverse proxy - default: `/swagger.json`
+- `basePath`: (string) The base path from where the API starts i.e. `/v2/` (note, needs to start with `/`) - default: `/`
+- `pathPrefixSize`: (number) Selects what segment of the URL path is used to group endpoints - default: `1`
+- `pathReplacements` : (array) methods for modifying path and group names in documentation - default: `[]`
+- `OAS`: OpenAPI version to use. Options are `v2` or `v3.0`. Default is `v2`.
+- `info`
+    - `title`: (string) The title of the application - default: `API documentation`
+    - `version`: (string) The version number of the API - default: `0.0.1`
+    - `description`: (string) A short description of the application
+    - `termsOfService`: (string) A URL to the Terms of Service of the API
+    - `contact`
+        - `name`: (string) A contact name for the API
+        - `url`: (string) A URL pointing to the contact information. MUST be formatted as a URL
+        - `email`: (string) A email address of the contact person/organization. MUST be formatted as an email address.
+    - `license`
+        - `name` (string) The name of the license used for the API
+        - `url` (string) The URL to the license used by the API. MUST be formatted as a URL
+    - `x-*` (any): any property or object with a key starting with `x-*` is included as such in the `info` section of the object returned by the JSON endpoint. This allows custom properties to be defined as options and copied as such.
+- `tags`: (array) containing array of [Tag Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#tagObject) used to group endpoints in UI. No defaults are provided.
+- `routeTag`: (string | function) Tag used by `hapi-openapi` to collect the routes that should be included in the OpenAPI swagger definition. Can also take a function receiving route tags and returning boolean, for example `(tags) => !tags.includes('private')` - default: `api`
+- `grouping`: (string) how to create grouping of endpoints value either `path` or `tags` - default: `path`
+- `tagsGroupingFilter`: (function) A function used to determine which tags should be used for grouping (when `grouping` is set to `tags`) - default: `(tag) => tag !== 'api'`
+- `securityDefinitions:`: (object) Containing [Security Definitions Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject). No defaults are provided.
+- `security`: (array) Containing [Security Requirement Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#securityRequirementObject). No defaults are provided.
+- `payloadType`: (string) How payload parameters are displayed `json` or `form` - default: `json`
+- `documentationRouteTags`: (string or array) Add hapi tags to internal `hapi-openapi` routes - default: `[]`
+- `documentationRoutePlugins`: (object) Add hapi plugins to internal `hapi-openapi` routes - default: `{}`
+- `consumes`: (array) The mime types consumed - default: `['application/json']`
+- `produces`: (array) The mime types produced - default: `['application/json']`
+- `xProperties`: Adds JOI data that cannot be use directly by swagger as metadata - default: `true`
+- `reuseDefinitions`: Reuse of definition models to save space. To really reuse the definition model you need to keep the definition and labels the same. - default: `true`
+- `definitionPrefix`: Dynamic naming convention. `default` or `useLabel` - default: `default`
+- `deReference`: Dereferences JSON output - default: `false`,
+- `debug`: Validates the JSON output against swagger specification - default: `false`
+- `x-*` (any): any property or object with a key starting with `x-*` is included in the swagger definition (similar to `x-*` options in the `info` object).
+- `authAccessFormatter`: (function) A function used to format authentication details such as entity or scopes.
+- `oauthOptions`: [TODO](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/oauth2.md)
+- `customSwaggerFile`: (json) Custom JSON file that follows Swagger specifications - default: `Auto generated by Joi Schema`
 
 ### UI
 
 > @see [swagger-ui options](https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md) as reference.
 
--   `swaggerUI`: (boolean) Add files that support SwaggerUI. Only removes files if `documentationPage` is also set to false - default: `true`
--   `swaggerUIPath`: (string) The path of to all the SwaggerUI resources - default: `/swaggerui/`
--   `routesBasePath`: (string) The path to all the SwaggerUI assets endpoints. If swaggerUIPath is specified and this parameter is not, it will take swaggerUIPath value. Useful when behind a reverse proxy - default: `/swaggerui/`
--   `documentationPage`: (boolean) Add documentation page - default: `true`
--   `documentationPath`: (string) The path of the documentation page - default: `/documentation`
--   `templates`: (string) The directory path used by `hapi-swagger` and `@hapi/vision` to resolve and load the templates to render `swagger-ui` interface. The directory must contain `index.html` and `debug.html` templates. Default is `templates` directory in this package.
--   `expanded`: (string) If UI is expanded when opened. `none`, `list` or `full` - default: `list`
--   `sortTags`: (string) a sort method for `tags` i.e. groups in UI. Default is `alpha`.
-    -   `alpha`: sort by paths alphanumerically
-    -   `unsorted`: leave tags unsorted. If `tags` is used they will be in the order defined there.
--   `sortEndpoints`: (string) a sort method for endpoints in UI. `alpha`, `method`, `ordered`, `unsorted`. Default is `alpha`.
-    -   `alpha`: sort by paths alphanumerically
-    -   `method`: sort by HTTP method
-    -   `ordered`: sort by `order` value of the `hapi-swagger` plugin options of the route.
-    -   `unsorted`: leave endpoints unsorted
--   `uiCompleteScript`: (string || object) Called when UI loads. Can be javascript string injected into the HTML (ex: `'alert("I got you !")'`) or object with `src` property (ex: `{ src: '/assets/js/doc-patch.js' }`) that can point to reference remote file. The file will be loaded on demand and appended to DOM. Default is `null`.
--   `uiOptions`: (object) Configuration [options](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) which are passed to Swagger UI.
--   `validatorUrl`: (string || null) sets the external validating URL Can switch off by setting to `null`
--   `tryItOutEnabled`: (boolean) controls whether the "Try it out" section should be enabled by default - default: `false`
+- `swaggerUI`: (boolean) Add files that support SwaggerUI. Only removes files if `documentationPage` is also set to false - default: `true`
+- `swaggerUIPath`: (string) The path of to all the SwaggerUI resources - default: `/swaggerui/`
+- `routesBasePath`: (string) The path to all the SwaggerUI assets endpoints. If swaggerUIPath is specified and this parameter is not, it will take swaggerUIPath value. Useful when behind a reverse proxy - default: `/swaggerui/`
+- `documentationPage`: (boolean) Add documentation page - default: `true`
+- `documentationPath`: (string) The path of the documentation page - default: `/documentation`
+- `templates`: (string) The directory path used by `hapi-openapi` resolve and load the templates to render `swagger-ui` interface. The directory must contain `index.html` and `debug.html` templates. Default is `templates` directory in this package.
+- `expanded`: (string) If UI is expanded when opened. `none`, `list` or `full` - default: `list`
+- `sortTags`: (string) a sort method for `tags` i.e. groups in UI. Default is `alpha`.
+    - `alpha`: sort by paths alphanumerically
+    - `unsorted`: leave tags unsorted. If `tags` is used they will be in the order defined there.
+- `sortEndpoints`: (string) a sort method for endpoints in UI. `alpha`, `method`, `ordered`, `unsorted`. Default is `alpha`.
+    - `alpha`: sort by paths alphanumerically
+    - `method`: sort by HTTP method
+    - `ordered`: sort by `order` value of the `hapi-openapi` plugin options of the route.
+    - `unsorted`: leave endpoints unsorted
+- `uiCompleteScript`: (string || object) Called when UI loads. Can be javascript string injected into the HTML (ex: `'alert("I got you !")'`) or object with `src` property (ex: `{ src: '/assets/js/doc-patch.js' }`) that can point to reference remote file. The file will be loaded on demand and appended to DOM. Default is `null`.
+- `uiOptions`: (object) Configuration [options](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) which are passed to Swagger UI.
+- `validatorUrl`: (string || null) sets the external validating URL Can switch off by setting to `null`
+- `tryItOutEnabled`: (boolean) controls whether the "Try it out" section should be enabled by default - default: `false`
 
 ## Plugin Specific Route Options
 
--   `payloadType`: (string) How payload parameters are displayed `json` or `form` - default: `json`
--   `responses`: (object) a collection of example responses for each HTTP statuses
--   `consumes`: (array) The mime types consumed - default: `['application/json']`
--   `produces`: (array) The mime types produced - default: `['application/json']`
--   `security`: (object) Containing [Security Definitions Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject). No defaults are provided.
--   `order`: (int) The order in which endpoints are displayed, works with `options.sortEndpoints === ordered`
--   `x-*` (any): any property or object with a key starting with `x-*` is included in the swagger definition (similar to `x-*` options in the `info` object).
--   `deprecated`: (boolean) Whether a endpoint has been deprecated - default: false
+- `payloadType`: (string) How payload parameters are displayed `json` or `form` - default: `json`
+- `responses`: (object) a collection of example responses for each HTTP statuses
+- `consumes`: (array) The mime types consumed - default: `['application/json']`
+- `produces`: (array) The mime types produced - default: `['application/json']`
+- `security`: (object) Containing [Security Definitions Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject). No defaults are provided.
+- `order`: (int) The order in which endpoints are displayed, works with `options.sortEndpoints === ordered`
+- `x-*` (any): any property or object with a key starting with `x-*` is included in the swagger definition (similar to `x-*` options in the `info` object).
+- `deprecated`: (boolean) Whether a endpoint has been deprecated - default: false
 
 ## Route Options
 
--   `validate`
-    -   `params`: (JOI object) allows you to `param` route documentation outside of Hapi validation
-    -   `query`: (JOI object) allows you to `query` route documentation outside of Hapi validation
-    -   `headers`: (JOI object) allows you to `headers` route documentation outside of Hapi validation
-    -   `payload`: (JOI object) allows you to `payload` route documentation outside of Hapi validation
+- `validate`
+    - `params`: (JOI object) allows you to `param` route documentation outside of Hapi validation
+    - `query`: (JOI object) allows you to `query` route documentation outside of Hapi validation
+    - `headers`: (JOI object) allows you to `headers` route documentation outside of Hapi validation
+    - `payload`: (JOI object) allows you to `payload` route documentation outside of Hapi validation
 
 ## Examples
 
 ### Plugins Example
 
-The plugin level options are added as you register the `hapi-swagger` plugin.
+The plugin level options are added as you register the `hapi-openapi` plugin.
 
 ```Javascript
 const options = {
@@ -134,7 +134,7 @@ server.route(Routes);
 
 ### Route Example
 
-The route level options are always placed within the `plugins.hapi-swagger` object under `config`. These options are
+The route level options are always placed within the `plugins.hapi-openapi` object under `config`. These options are
 only assigned to the route they are apply to.
 
 ```Javascript
@@ -144,7 +144,7 @@ only assigned to the route they are apply to.
     options: {
         handler: handlers.storeUpdate,
         plugins: {
-            'hapi-swagger': {
+            'hapi-openapi': {
                 responses: {
                     '400': {
                         'description': 'BadRequest'

@@ -4,7 +4,7 @@ const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
 const Inert = require('@hapi/inert');
 const Wreck = require('@hapi/wreck');
-const HapiSwagger = require('../lib/index.js');
+const HapiOpenapi = require('../lib/index.js');
 
 const helper = (module.exports = {});
 
@@ -21,7 +21,7 @@ helper.createServer = async (swaggerOptions, routes, serverOptions = {}) => {
     Inert,
     H2o2,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);
@@ -48,7 +48,7 @@ helper.createServerMultiple = async (swaggerOptions1, swaggerOptions2, routes, s
 
   await server.register(
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions1
     },
     {
@@ -58,7 +58,7 @@ helper.createServerMultiple = async (swaggerOptions1, swaggerOptions2, routes, s
 
   await server.register(
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions2
     },
     {
@@ -89,7 +89,7 @@ helper.createAuthServer = async (swaggerOptions, routes, serverOptions = {}) => 
     H2o2,
     BearerToken,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);
@@ -136,7 +136,7 @@ helper.createJWTAuthServer = async (swaggerOptions, routes) => {
     Inert,
     require('hapi-auth-jwt2'),
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

@@ -4,9 +4,8 @@
 
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 const Pack = require('../package');
 const Routes = require('./assets/routes-simple.js');
 
@@ -20,7 +19,7 @@ const swaggerOptions = {
   debug: true // switch on debug
 };
 
-// use chalk to log colour hapi-swagger messages to console.
+// use chalk to log colour hapi-openapi messages to console.
 const formatLogEvent = function (event) {
   console.log(`[${event.tags}], ${event.data}`);
 };
@@ -33,9 +32,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

@@ -3,9 +3,8 @@
 
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 const Pack = require('../package');
 
 const handler = (request, reply) => {
@@ -21,7 +20,7 @@ const Routes = [
       description: 'Array properties',
       tags: ['api', 'petstore'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           order: 1
         }
       }
@@ -35,7 +34,7 @@ const Routes = [
       description: 'Array properties',
       tags: ['api', 'petstore'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           order: 2
         }
       }
@@ -49,7 +48,7 @@ const Routes = [
       description: 'Array properties',
       tags: ['api', 'petstore'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           order: 3
         }
       }
@@ -63,7 +62,7 @@ const Routes = [
       description: 'Array properties',
       tags: ['api', 'pet'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           order: 4
         }
       }
@@ -77,7 +76,7 @@ const Routes = [
       description: 'Array properties',
       tags: ['api', 'pet', 'extra'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           order: 5
         }
       }
@@ -91,7 +90,7 @@ const Routes = [
       description: 'Array properties',
       tags: ['api', 'pet'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           order: 6
         }
       }
@@ -129,9 +128,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

@@ -5,11 +5,10 @@
 
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 const Boom = require('@hapi/boom');
 const Joi = require('joi');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 
 const storeFile = async function (request, h) {
   const payload = request.payload;
@@ -70,7 +69,7 @@ const routes = [
     options: {
       handler: storeFile,
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           payloadType: 'form'
         }
       },
@@ -97,9 +96,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

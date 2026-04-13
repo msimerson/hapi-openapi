@@ -14,7 +14,7 @@ lab.experiment('file', () => {
     options: {
       handler: Helper.defaultHandler,
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           payloadType: 'form'
         }
       },

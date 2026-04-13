@@ -246,7 +246,7 @@ lab.experiment('responses', () => {
         handler: Helper.defaultHandler,
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: standardHTTP
           }
         },
@@ -278,7 +278,7 @@ lab.experiment('responses', () => {
           schema: Joi.object().keys({ test: Joi.string() }).label('Result')
         },
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               200: {
                 description: 'Success its a 200',
@@ -310,7 +310,7 @@ lab.experiment('responses', () => {
       options: {
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               200: {
                 'x-meta': 'x-meta test data'
@@ -336,7 +336,7 @@ lab.experiment('responses', () => {
         handler: Helper.defaultHandler,
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               200: {
                 description: 'Success',
@@ -695,7 +695,7 @@ lab.experiment('responses', () => {
         handler: Helper.defaultHandler,
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               200: {
                 description: 'Success with response.schema'
@@ -741,7 +741,7 @@ lab.experiment('responses', () => {
         handler: Helper.defaultHandler,
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               404: {
                 description: 'Could not find a schema'
@@ -790,7 +790,7 @@ lab.experiment('responses', () => {
         handler: Helper.defaultHandler,
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               200: {
                 description: 'Success with response.schema',
@@ -837,7 +837,7 @@ lab.experiment('responses', () => {
         handler: Helper.defaultHandler,
         tags: ['api'],
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             responses: {
               400: {
                 description: '400 - Added from plugin-options'

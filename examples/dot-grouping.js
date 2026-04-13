@@ -7,8 +7,7 @@
 
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 
 const swaggerOptions = {
   pathPrefixSize: 2,
@@ -34,9 +33,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

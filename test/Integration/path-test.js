@@ -59,7 +59,7 @@ lab.experiment('path', () => {
   lab.test('route settting of consumes produces', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         consumes: ['application/x-www-form-urlencoded'],
         produces: ['application/json', 'application/xml']
       }
@@ -82,7 +82,7 @@ lab.experiment('path', () => {
 
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         consumes: ['application/x-www-form-urlencoded'],
         produces: ['application/json', 'application/xml']
       }
@@ -100,7 +100,7 @@ lab.experiment('path', () => {
   lab.test('auto "x-www-form-urlencoded" consumes with payloadType', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         payloadType: 'form'
       }
     };
@@ -116,7 +116,7 @@ lab.experiment('path', () => {
   lab.test('rename a parameter', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         payloadType: 'form'
       }
     };
@@ -141,7 +141,7 @@ lab.experiment('path', () => {
   lab.test('auto "multipart/form-data" consumes with { swaggerType: "file" }', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         payloadType: 'form'
       }
     };
@@ -166,7 +166,7 @@ lab.experiment('path', () => {
     };
 
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         consumes: ['multipart/form-data']
       }
     };
@@ -180,16 +180,16 @@ lab.experiment('path', () => {
   lab.test('auto "application/x-www-form-urlencoded" do not add two', async () => {
     const testRoutes = Hoek.clone(routes);
 
-    (testRoutes.options.validate = {
+    ((testRoutes.options.validate = {
       payload: Joi.object({
         file: Joi.string().description('json file')
       })
     }),
       (testRoutes.options.plugins = {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           consumes: ['application/x-www-form-urlencoded']
         }
-      });
+      }));
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
@@ -218,7 +218,7 @@ lab.experiment('path', () => {
   lab.test('payloadType form', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         payloadType: 'form'
       }
     };
@@ -475,7 +475,7 @@ lab.experiment('path', () => {
   lab.test('route deprecated', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         deprecated: true
       }
     };
@@ -491,7 +491,7 @@ lab.experiment('path', () => {
   lab.test('custom operationId for code-gen apps', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
-      'hapi-swagger': {
+      '@msimerson/hapi-openapi': {
         id: 'add'
       }
     };
@@ -579,7 +579,7 @@ lab.experiment('path', () => {
           payload: Joi.object()
         },
         plugins: {
-          'hapi-swagger': {
+          '@msimerson/hapi-openapi': {
             payloadType: 'form'
           }
         }

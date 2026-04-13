@@ -2,32 +2,32 @@
 
 ## Content
 
--   [JSON body](#json-body)
--   [Form body](#form-body)
--   [Params query and headers](#params-query-and-headers)
--   [Naming](#naming)
--   [Grouping endpoints by path or tags](#grouping-endpoints-by-path-or-tags)
--   [Extending group information with tag objects](#extending-group-information-with-tag-objects)
--   [Ordering the endpoints within groups](#ordering-the-endpoints-within-groups)
--   [Rewriting paths and groupings](#rewriting-paths-and-groupings)
--   [Response Object](#response-object)
--   [Status Codes](#status-codes)
--   [Caching](#caching)
--   [File upload](#file-upload)
--   [Prevent JOI properties from being included in the Swagger schema](#prevent-joi-properties-from-being-included-in-the-swagger-schema)
--   [Name JOI properties for XML formats](#name-joi-properties-for-xml-formats)
--   [Set format field to JOI number properties](#set-format-field-to-joi-number-properties)
--   [Headers and .unknown()](#headers-and-unknown)
--   [Additional Hapi data using x-\*](#additional-hapi-data-using-x-)
--   [JSON without UI](#json-without-ui)
--   [Simplifying the JSON](#simplifying-the-json)
--   [Debugging](#debugging)
--   [Features from Hapi that cannot be ported to Swagger](#features-from-hapi-that-cannot-be-ported-to-swagger)
+- [JSON body](#json-body)
+- [Form body](#form-body)
+- [Params query and headers](#params-query-and-headers)
+- [Naming](#naming)
+- [Grouping endpoints by path or tags](#grouping-endpoints-by-path-or-tags)
+- [Extending group information with tag objects](#extending-group-information-with-tag-objects)
+- [Ordering the endpoints within groups](#ordering-the-endpoints-within-groups)
+- [Rewriting paths and groupings](#rewriting-paths-and-groupings)
+- [Response Object](#response-object)
+- [Status Codes](#status-codes)
+- [Caching](#caching)
+- [File upload](#file-upload)
+- [Prevent JOI properties from being included in the Swagger schema](#prevent-joi-properties-from-being-included-in-the-swagger-schema)
+- [Name JOI properties for XML formats](#name-joi-properties-for-xml-formats)
+- [Set format field to JOI number properties](#set-format-field-to-joi-number-properties)
+- [Headers and .unknown()](#headers-and-unknown)
+- [Additional Hapi data using x-\*](#additional-hapi-data-using-x-)
+- [JSON without UI](#json-without-ui)
+- [Simplifying the JSON](#simplifying-the-json)
+- [Debugging](#debugging)
+- [Features from Hapi that cannot be ported to Swagger](#features-from-hapi-that-cannot-be-ported-to-swagger)
 
 ## Links
 
--   [Example code in project](#example-code-in-project)
--   [External example projects](#external-example-projects)
+- [Example code in project](#example-code-in-project)
+- [External example projects](#external-example-projects)
 
 ## JSON body
 
@@ -52,7 +52,7 @@ The most common API endpoint with Hapi.js is one that POST's a JSON body.
 
 ## Form body
 
-If you wish to have hapi-swagger display a interface to POST data in `form-urlencoded` format add the route option `payloadType: 'form'`.
+If you wish to have hapi-openapi display a interface to POST data in `form-urlencoded` format add the route option `payloadType: 'form'`.
 
 ```javascript
 {
@@ -62,7 +62,7 @@ If you wish to have hapi-swagger display a interface to POST data in `form-urlen
         handler: (request, h) => { return 'OK'; },
         tags: ['api'],
         plugins: {
-            'hapi-swagger': {
+            'hapi-openapi': {
                 payloadType: 'form'
             }
         },
@@ -234,7 +234,7 @@ then add the route option `order` to each endpoint and switch the plugin option 
             'api'
         ],
         plugins: {
-            'hapi-swagger': {
+            'hapi-openapi': {
                 order: 2
             }
         }
@@ -254,7 +254,7 @@ const routes = [
         path: '/petstore/{id}',
         options: {
             plugins: {
-                'hapi-swagger': { order: ++order }
+                'hapi-openapi': { order: ++order }
             }
         }
     },
@@ -263,7 +263,7 @@ const routes = [
         path: '/store/{id}/address',
         options: {
             plugins: {
-                'hapi-swagger': { order: ++order }
+                'hapi-openapi': { order: ++order }
             }
         }
     }
@@ -306,9 +306,9 @@ pathReplacements: [
 ];
 ```
 
--   `replaceIn` (string) defines what to alter, can be: 'groups', 'endpoints' or 'all'
--   `pattern` (regex) patten for matching
--   `replacement` (string) replacement string
+- `replaceIn` (string) defines what to alter, can be: 'groups', 'endpoints' or 'all'
+- `pattern` (regex) patten for matching
+- `replacement` (string) replacement string
 
 There is a example of this feature [`dot-grouping.js`](examples/dot-grouping.js) in the examples directory.
 
@@ -387,20 +387,20 @@ options: {
 **Note:** The `Reason` box in Swagger-UI for the response will take the value of the default description of its' corresponding status code.
 For example:
 
--   200 -> `Successful`
--   400 -> `Bad Request`
--   404 -> `Not Found`
--   204 -> `No Content`
+- 200 -> `Successful`
+- 400 -> `Bad Request`
+- 404 -> `Not Found`
+- 204 -> `No Content`
 
-Basically, Swagger requires a `description` for each response, and by taking the default description we can overcome this requirement. Setting `response.status.204` to `undefined` will allow **hapi-swagger** to pass-through the description of `No Content` to the swagger definition.
+Basically, Swagger requires a `description` for each response, and by taking the default description we can overcome this requirement. Setting `response.status.204` to `undefined` will allow **hapi-openapi** to pass-through the description of `No Content` to the swagger definition.
 
-However, if one wishes to provide a custom `description`, then hapi-swagger offers the `plugins.hapi-swager.responses` option in which response objects specify a `description` key which allows this.
+However, if one wishes to provide a custom `description`, then hapi-openapi offers the `plugins.hapi-openapi.responses` option in which response objects specify a `description` key which allows this.
 With this option, the `description` is required, the `schema` is optional, and unlike `response.status` option above, the schema object does not validate the API response.
 
 In the following example, the `Reason` box in Swagger-UI will show the following descriptions:
 
--   200 -> `Smooth sail`
--   400 -> `Something wrong happened`
+- 200 -> `Smooth sail`
+- 400 -> `Something wrong happened`
 
 ```javascript
 options: {
@@ -409,7 +409,7 @@ options: {
     tags: ['api'],
     notes: ['Adds together two numbers and return the result'],
     plugins: {
-        'hapi-swagger': {
+        'hapi-openapi': {
             responses: {
                 200: {
                     description: 'Smooth sail',
@@ -440,7 +440,7 @@ options: {
 
 ## Caching
 
-It can take some time to create the `swagger.json` data if your server has many complex routes. So `hapi-swagger`
+It can take some time to create the `swagger.json` data if your server has many complex routes. So `hapi-openapi`
 can cache its `swagger.json` data. The cache options are those of Hapi
 
 ```javascript
@@ -457,8 +457,8 @@ options.cache = {
 };
 ```
 
--   `expiresIn` - relative expiration expressed in milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
--   `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
+- `expiresIn` - relative expiration expressed in milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+- `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
 
 **NOTE: The plugin has a number of internal caching features which do help its speed, but this options caches
 the whole JSON output.**
@@ -468,9 +468,9 @@ the whole JSON output.**
 The plug-in has basic support for file uploads into your API's. Below is an example of a route with a file upload,
 the three important elements are:
 
--   `payloadType: 'form'` in the plugins section creates a form for upload
--   `.meta({ swaggerType: 'file' })` add to the payload property you wish to be file upload
--   `payload` configuration how Hapi will process file
+- `payloadType: 'form'` in the plugins section creates a form for upload
+- `.meta({ swaggerType: 'file' })` add to the payload property you wish to be file upload
+- `payload` configuration how Hapi will process file
 
 ```javascript
 {
@@ -479,7 +479,7 @@ the three important elements are:
     options: {
         handler: handlers.storeAddFile,
         plugins: {
-            'hapi-swagger': {
+            'hapi-openapi': {
                 payloadType: 'form'
             }
         },
@@ -622,7 +622,7 @@ options: {
 }
 ```
 
-With both `documentationPage` and `swaggerUI` set to false you do not need to load `Inert` and `Vision` plugins to use `hapi-swagger`.
+With both `documentationPage` and `swaggerUI` set to false you do not need to load `Inert` and `Vision` plugins to use `hapi-openapi`.
 
 ## Simplifying the JSON
 
@@ -641,16 +641,16 @@ There is a small example of the [`debug`](examples/debug.js) feature in the exam
 
 Not all the flexibility of Hapi and JOI can to ported over to the Swagger schema. Below is a list of the most common asked for features that cannot be ported.
 
--   **`Joi.extend()`** Only works if you are extending a `base` type such as `number` or `string`
--   **`Joi.lazy()`** This new `JOI` feature needs more research to see if its possible to visual describe recursive objects before its supported.
--   **`Joi.alternatives()`** This allows parameters to be more than one type. i.e. string or int. ~~Swagger does not yet support this because of a number codegen tools using swagger build to typesafe languages. This **maybe** added to the next version of OpenAPI spec. (Experimental support allow for the first of any options to be displayed)~~
--   **`Joi.forbidden()`** There is only limited support `.forbidden()` with `.alternatives()`
--   **`array.ordered(type)`** This allows for different typed items within an array. i.e. string or int.
--   **`{name*}`** The path parameters with the `*` char are not supported, either is the `{name*3}` the pattern. This will mostly likely be added to the next version of OpenAPI spec.
--   **`.allow( null )`** The current Swagger spec does not support `null`. This **maybe** added to the next version of OpenAPI spec.
--   **`payload: function (value, options, next) {next(null, value);}`** The use of custom functions to validate pramaters is not support beyond replacing them with an empty model call "Hidden Model".
--   **`Joi.date().format('yy-mm-dd')` ** The use of a `moment` pattern to format a date cannot be reproduced in Swagger
--   **`Joi.date().min()` and `Joi.date().max()`** Minimum or maximum dates cannot be expressed in Swagger.
+- **`Joi.extend()`** Only works if you are extending a `base` type such as `number` or `string`
+- **`Joi.lazy()`** This new `JOI` feature needs more research to see if its possible to visual describe recursive objects before its supported.
+- **`Joi.alternatives()`** This allows parameters to be more than one type. i.e. string or int. ~~Swagger does not yet support this because of a number codegen tools using swagger build to typesafe languages. This **maybe** added to the next version of OpenAPI spec. (Experimental support allow for the first of any options to be displayed)~~
+- **`Joi.forbidden()`** There is only limited support `.forbidden()` with `.alternatives()`
+- **`array.ordered(type)`** This allows for different typed items within an array. i.e. string or int.
+- **`{name*}`** The path parameters with the `*` char are not supported, either is the `{name*3}` the pattern. This will mostly likely be added to the next version of OpenAPI spec.
+- **`.allow( null )`** The current Swagger spec does not support `null`. This **maybe** added to the next version of OpenAPI spec.
+- **`payload: function (value, options, next) {next(null, value);}`** The use of custom functions to validate pramaters is not support beyond replacing them with an empty model call "Hidden Model".
+- **`Joi.date().format('yy-mm-dd')` ** The use of a `moment` pattern to format a date cannot be reproduced in Swagger
+- **`Joi.date().min()` and `Joi.date().max()`** Minimum or maximum dates cannot be expressed in Swagger.
 
 ### Custom tag-specific documentation
 
@@ -679,22 +679,22 @@ This will load all routes that have one or more of the given tags (`foo` or `bar
 
 ## Example code in project
 
-There are a number of examples of different uses of `hapi-swagger` in the examples directory. These files contain a full Hapi node app:
+There are a number of examples of different uses of `hapi-openapi` in the examples directory. These files contain a full Hapi node app:
 
--   [`custom.js`](examples/custom.js) - how build a custom documentation page with its own CSS and JS
--   [`debug.js`](examples/debug.js) - how console.log debug information from `hapi-swagger`
--   [`group-ordered.js`](examples/group-ordered.js) - how group and ordered endpoints in the UI
--   [`jwt.js`](examples/jwt.js) - how to used the plug-in in combination with JSON Web Tokens (JWT) `securityDefinition`
--   [`options.js`](examples/options.js) - how to use many of the plug-ins options
--   [`promise.js`](examples/promise.js) - how to setup the plug-in using promises
--   [`swagger-client.js`](examples/swagger-client.js) - how use the plug-in to build an lib interface with `swagger-client`
--   [`upload-file.js`](examples/upload-file.js) - how create documenation for a file upload
--   [`versions.js`](examples/versions.js) - how to use the plug-in with `hapi-api-version` for versioning of an API
+- [`custom.js`](examples/custom.js) - how build a custom documentation page with its own CSS and JS
+- [`debug.js`](examples/debug.js) - how console.log debug information from `hapi-openapi`
+- [`group-ordered.js`](examples/group-ordered.js) - how group and ordered endpoints in the UI
+- [`jwt.js`](examples/jwt.js) - how to used the plug-in in combination with JSON Web Tokens (JWT) `securityDefinition`
+- [`options.js`](examples/options.js) - how to use many of the plug-ins options
+- [`promise.js`](examples/promise.js) - how to setup the plug-in using promises
+- [`swagger-client.js`](examples/swagger-client.js) - how use the plug-in to build an lib interface with `swagger-client`
+- [`upload-file.js`](examples/upload-file.js) - how create documenation for a file upload
+- [`versions.js`](examples/versions.js) - how to use the plug-in with `hapi-api-version` for versioning of an API
 
 ## External example projects
 
 Both these example use a custom HTML page
 
--   [`be-more-hapi`](https://github.com/glennjones/be-more-hapi) - talk from Async.js on the October 2013 - old `hapi-swagger` example project, but keep update
--   [`hapi-token-docs`](https://github.com/glennjones/hapi-token-docs) - A example site using Hapi, JWT tokens and swagger documentation
--   [`time-to-be-hapi`](https://github.com/glennjones/time-to-be-hapi) - Londonjs talk March 2016 has many example uses of Hapi and one using `hapi-swagger`
+- [`be-more-hapi`](https://github.com/glennjones/be-more-hapi) - talk from Async.js on the October 2013 - old `hapi-openapi` example project, but keep update
+- [`hapi-token-docs`](https://github.com/glennjones/hapi-token-docs) - A example site using Hapi, JWT tokens and swagger documentation
+- [`time-to-be-hapi`](https://github.com/glennjones/time-to-be-hapi) - Londonjs talk March 2016 has many example uses of Hapi and one using `hapi-openapi`

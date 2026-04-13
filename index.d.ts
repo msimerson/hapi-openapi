@@ -3,7 +3,7 @@ import { AuthSettings, Plugin } from '@hapi/hapi';
 declare module '@hapi/hapi' {
   // https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/hapi__hapi/index.d.ts#L97
   interface PluginSpecificConfiguration {
-    'hapi-swagger'?: {
+    '@msimerson/hapi-openapi'?: {
       /**
        * How payload parameters are displayed `json` or `form`
        * @default 'json'
@@ -328,13 +328,13 @@ declare namespace hapiswagger {
     payloadType?: string;
 
     /**
-     * Add hapi tags to internal hapi-swagger routes
+     * Add hapi tags to internal hapi-openapi routes
      * @default []
      */
     documentationRouteTags?: string | string[];
 
     /**
-     * Add hapi plugins option to internal hapi-swagger routes
+     * Add hapi plugins option to internal hapi-openapi routes
      * @default []
      */
     documentationRoutePlugins?: object;
@@ -446,7 +446,7 @@ declare namespace hapiswagger {
     documentationPath?: string;
 
     /**
-     * The directory path used by `hapi-swagger` and `@hapi/vision` to resolve and load the templates to render `swagger-ui` interface. The directory must contain `index.html` and `debug.html` templates
+     * The directory path used by `hapi-openapi` and `@hapi/vision` to resolve and load the templates to render `swagger-ui` interface. The directory must contain `index.html` and `debug.html` templates
      * @default: './templates'
      */
     templates?: string;

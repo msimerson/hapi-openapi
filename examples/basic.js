@@ -6,9 +6,8 @@ const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
 const Basic = require('@hapi/basic');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 
 const swaggerOptions = {
   info: {
@@ -61,9 +60,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);
@@ -78,7 +76,7 @@ const ser = async () => {
       description: 'Update sum',
       notes: ['Update a sum in our data store'],
       plugins: {
-        'hapi-swagger': {
+        '@msimerson/hapi-openapi': {
           payloadType: 'form'
         }
       },

@@ -3,9 +3,8 @@
 
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Vision = require('@hapi/vision');
 
-const HapiSwagger = require('../');
+const HapiOpenapi = require('../');
 const Pack = require('../package');
 
 const handler = (request, reply) => {
@@ -79,9 +78,8 @@ const ser = async () => {
 
   await server.register([
     Inert,
-    Vision,
     {
-      plugin: HapiSwagger,
+      plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);

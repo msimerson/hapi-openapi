@@ -2,7 +2,7 @@ const Code = require('@hapi/code');
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const HapiSwagger = require('../../lib/index.js');
+const HapiOpenapi = require('../../lib/index.js');
 const Validate = require('../../lib/validate.js');
 
 const expect = Code.expect;
@@ -29,13 +29,13 @@ const swaggerOptions = {
     title: 'Test API Documentation',
     description: 'This is a sample example of API documentation.',
     version: '1.0.0',
-    termsOfService: 'https://github.com/hapi-swagger/hapi-swagger/',
+    termsOfService: 'https://github.com/msimerson/hapi-openapi/',
     contact: {
       email: 'glennjonesnet@gmail.com'
     },
     license: {
       name: 'MIT',
-      url: 'https://raw.githubusercontent.com/hapi-swagger/hapi-swagger/master/license.txt'
+      url: 'https://raw.githubusercontent.com/msimerson/hapi-openapi/master/license.txt'
     }
   }
 };
@@ -49,7 +49,7 @@ lab.experiment('default grouping', () => {
         plugin: testPlugin
       },
       {
-        plugin: HapiSwagger,
+        plugin: HapiOpenapi,
         options: swaggerOptions
       }
     ]);
@@ -84,7 +84,7 @@ lab.experiment('default grouping', () => {
         Inert,
         testPlugin,
         {
-          plugin: HapiSwagger,
+          plugin: HapiOpenapi,
           options: swaggerOptions
         }
       ]);
@@ -121,7 +121,7 @@ lab.experiment('default grouping', () => {
         Inert,
         testPlugin,
         {
-          plugin: HapiSwagger,
+          plugin: HapiOpenapi,
           options: swaggerOptions
         }
       ]);
