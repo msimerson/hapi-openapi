@@ -54,6 +54,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@hapi/vision": "^7.0.3",
     "swagger-ui-dist": "^5.32.2"
   },
   "optionalDependencies": {
@@ -72,7 +73,6 @@
     "@hapi/lab": "^26.0.1",
     "@hapi/wreck": "^18.1.0",
     "eslint": "^9.39.4",
-    "swagger-parser": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "hapi-auth-bearer-token": "^8.0.0",
     "hapi-auth-jwt2": "^11.0.0",
@@ -81,6 +81,7 @@
     "jsonwebtoken": "^9.0.3",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.2",
+    "swagger-parser": "^10.0.3",
     "tsd": "^0.33.0"
   },
   "peerDependencies": {
