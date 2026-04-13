@@ -1,7 +1,6 @@
 'use strict';
 
 const Hapi = require('@hapi/hapi');
-const Blipp = require('blipp');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
 
@@ -10,7 +9,7 @@ const HapiSwagger = require('..');
 const SwaggerJSONFile = require('./assets/swagger.json');
 
 const swaggerOptions = {
-  customSwaggerFile: SwaggerJSONFile,
+  customSwaggerFile: SwaggerJSONFile
 };
 
 const ser = async () => {
@@ -22,7 +21,6 @@ const ser = async () => {
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

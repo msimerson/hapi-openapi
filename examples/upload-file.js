@@ -4,7 +4,6 @@
 'use strict';
 
 const Hapi = require('@hapi/hapi');
-const Blipp = require('blipp');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
 const Boom = require('@hapi/boom');
@@ -96,11 +95,9 @@ const ser = async () => {
     port: 3000
   });
 
-  // Blipp - Needs updating for Hapi v17.x
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

@@ -1,5 +1,4 @@
 const Joi = require('joi');
-const Js2xmlparser = require('js2xmlparser');
 
 const sumModel = Joi.object({
   id: Joi.string().required().example('x78P9c'),
@@ -93,19 +92,7 @@ const resultHTTPStatus = {
   }
 };
 
-/**
- * allows a reply to have either a json or xml response
- *
- * @param  {String} name
- * @param  {Object} json
- * @param  {Object} request
- * @param  {Object} reply
- */
 const replyByType = function (name, json, request, h) {
-  if (request.headers.accept === 'application/xml') {
-    return h.response(Js2xmlparser(name, json)).type('application/xml');
-  }
-
   return h.response(json).type('application/json');
 };
 
@@ -248,7 +235,7 @@ module.exports = [
       ],
       plugins: {
         'hapi-swagger': {
-          consumes: ['application/json', 'application/xml']
+          consumes: ['application/json']
         }
       },
       auth: 'bearer',
@@ -382,8 +369,8 @@ module.exports = [
         'hapi-swagger': {
           responses: sumHTTPStatus,
           payloadType: 'form',
-          produces: ['application/json', 'application/xml'],
-          consumes: ['application/json', 'application/xml']
+          produces: ['application/json'],
+          consumes: ['application/json']
         }
       },
       tags: ['api', 'reduced', 'three'],

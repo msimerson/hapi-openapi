@@ -5,7 +5,6 @@
 const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
 const Basic = require('@hapi/basic');
-const Blipp = require('blipp');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
 
@@ -60,11 +59,9 @@ const ser = async () => {
   server.auth.strategy('simple', 'basic', { validate });
   server.auth.default('simple');
 
-  // Blipp - Needs updating for Hapi v17.x
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

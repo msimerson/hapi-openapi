@@ -3,7 +3,6 @@
 
 const Fs = require('fs');
 const Path = require('path');
-const Blipp = require('blipp');
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
@@ -79,11 +78,9 @@ const ser = async () => {
     tls
   });
 
-  // Blipp - Needs updating for Hapi v17.x
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

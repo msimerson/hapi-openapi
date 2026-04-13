@@ -4,8 +4,6 @@ const Hoek = require('@hapi/hoek');
 const Inert = require('@hapi/inert');
 const Joi = require('joi');
 const Lab = require('@hapi/lab');
-const Vision = require('@hapi/vision');
-const { resolve } = require('path');
 const HapiSwagger = require('../../lib/index.js');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
@@ -33,21 +31,10 @@ lab.experiment('plugin', () => {
     }
   ];
 
-  lab.test('plug-in register no vision dependency', async () => {
-    try {
-      const server = new Hapi.Server();
-      await server.register([Inert, HapiSwagger]);
-      server.route(routes);
-      await server.start();
-    } catch (err) {
-      expect(err.message).to.equal('Plugin hapi-swagger missing dependency @hapi/vision');
-    }
-  });
-
   lab.test('plug-in register no inert dependency', async () => {
     try {
       const server = new Hapi.Server();
-      await server.register([Vision, HapiSwagger]);
+      await server.register([HapiSwagger]);
       server.route(routes);
       await server.start();
     } catch (err) {
@@ -58,7 +45,7 @@ lab.experiment('plugin', () => {
   lab.test('plug-in register no options', async () => {
     try {
       const server = new Hapi.Server();
-      await server.register([Inert, Vision, HapiSwagger]);
+      await server.register([Inert, HapiSwagger]);
       server.route(routes);
       await server.start();
       expect(server).to.be.an.object();
@@ -309,7 +296,6 @@ lab.experiment('plugin', () => {
     const server = new Hapi.Server();
     await server.register([
       Inert,
-      Vision,
       {
         plugin: HapiSwagger,
         routes: {
@@ -325,27 +311,6 @@ lab.experiment('plugin', () => {
     expect(response.statusCode).to.equal(200);
     const htmlContent = response.result;
     expect(htmlContent).to.contain(['/implicitPrefix/swaggerui/swagger-ui-bundle.js', '/implicitPrefix/swagger.json']);
-  });
-
-  lab.test('should use templates options to render ui', async () => {
-    const server = new Hapi.Server();
-    await server.register([
-      Inert,
-      Vision,
-      {
-        plugin: HapiSwagger,
-        options: {
-          templates: resolve(__dirname, 'templates')
-        }
-      }
-    ]);
-
-    server.route(routes);
-    await server.start();
-    const response = await server.inject({ method: 'GET', url: '/documentation' });
-    expect(response.statusCode).to.equal(200);
-    const htmlContent = response.result;
-    expect(htmlContent).to.contain(['swagger-ui-userland']);
   });
 
   lab.test('enable cors settings, should return headers with origin settings', async () => {

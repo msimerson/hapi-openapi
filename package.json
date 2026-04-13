@@ -12,7 +12,6 @@
   "files": [
     "lib",
     "public",
-    "templates",
     "index.js",
     "index.d.ts"
   ],
@@ -52,43 +51,37 @@
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^15.3.5",
-    "@hapi/boom": "^10.0.1",
     "@hapi/hoek": "^11.0.7",
-    "handlebars": "^4.7.9",
-    "http-status": "^2.1.0",
-    "swagger-parser": "^10.0.3",
     "swagger-ui-dist": "^5.32.2"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/eslint-parser": "^7.28.6",
     "@hapi/basic": "^7.0.2",
+    "@hapi/boom": "^10.0.1",
     "@hapi/code": "^9.0.3",
     "@hapi/eslint-plugin": "^7.0.0",
     "@hapi/h2o2": "^10.0.4",
     "@hapi/hapi": "^21.4.8",
     "@hapi/inert": "^7.1.0",
     "@hapi/lab": "^26.0.1",
-    "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
-    "blipp": "^4.0.2",
-    "coveralls": "^3.1.1",
     "eslint": "^9.39.4",
+    "swagger-parser": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "hapi-auth-bearer-token": "^8.0.0",
     "hapi-auth-jwt2": "^11.0.0",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
     "joi": "^18.1.2",
-    "js2xmlparser": "^5.0.0",
     "jsonwebtoken": "^9.0.3",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.2",
-    "swagger-client": "^3.37.1",
     "tsd": "^0.33.0"
   },
   "peerDependencies": {
     "@hapi/hapi": ">=20.x.x",
+    "@hapi/inert": ">=7.x.x",
     "joi": ">=17.x <19.x"
   },
   "lint-staged": {

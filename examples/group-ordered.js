@@ -1,7 +1,6 @@
 // `group-ordered.js` - how to use tag based grouping
 'use strict';
 
-const Blipp = require('blipp');
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
@@ -9,7 +8,9 @@ const Vision = require('@hapi/vision');
 const HapiSwagger = require('../');
 const Pack = require('../package');
 
-const handler = (request, reply) => { reply({ ok: true }) }
+const handler = (request, reply) => {
+  reply({ ok: true });
+};
 
 const Routes = [
   {
@@ -126,11 +127,9 @@ const ser = async () => {
     port: 3000
   });
 
-  // Blipp - Needs updating for Hapi v17.x
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

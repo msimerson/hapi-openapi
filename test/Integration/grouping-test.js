@@ -2,7 +2,6 @@ const Code = require('@hapi/code');
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
 const Lab = require('@hapi/lab');
-const Vision = require('@hapi/vision');
 const HapiSwagger = require('../../lib/index.js');
 const Validate = require('../../lib/validate.js');
 
@@ -11,7 +10,7 @@ const lab = (exports.lab = Lab.script());
 
 const testPlugin = {
   name: 'grouping1',
-  register: server => {
+  register: (server) => {
     server.route({
       method: 'GET',
       path: '/grouping1',
@@ -46,7 +45,6 @@ lab.experiment('default grouping', () => {
     const server = await new Hapi.Server({});
     await server.register([
       Inert,
-      Vision,
       {
         plugin: testPlugin
       },
@@ -84,7 +82,6 @@ lab.experiment('default grouping', () => {
       swaggerOptions.grouping = 'tags';
       await server.register([
         Inert,
-        Vision,
         testPlugin,
         {
           plugin: HapiSwagger,
@@ -118,11 +115,10 @@ lab.experiment('default grouping', () => {
     lab.test('group by filtered tags', async () => {
       const server = await new Hapi.Server({});
       swaggerOptions.grouping = 'tags';
-      swaggerOptions.tagsGroupingFilter = tag => tag === 'hello group';
+      swaggerOptions.tagsGroupingFilter = (tag) => tag === 'hello group';
 
       await server.register([
         Inert,
-        Vision,
         testPlugin,
         {
           plugin: HapiSwagger,

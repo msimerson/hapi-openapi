@@ -1,7 +1,6 @@
 // `routes-filtering.js` - how to filter routes to be added to the docs
 'use strict';
 
-const Blipp = require('blipp');
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
@@ -9,7 +8,9 @@ const Vision = require('@hapi/vision');
 const HapiSwagger = require('../');
 const Pack = require('../package');
 
-const handler = (request, reply) => { reply({ ok: true }) }
+const handler = (request, reply) => {
+  reply({ ok: true });
+};
 
 const Routes = [
   {
@@ -17,7 +18,7 @@ const Routes = [
     path: '/petstore',
     options: {
       handler,
-      tags: ['api', 'petstore', 'auth'],
+      tags: ['api', 'petstore', 'auth']
     }
   },
   {
@@ -25,7 +26,7 @@ const Routes = [
     path: '/petstore',
     options: {
       handler,
-      tags: ['api', 'petstore'],
+      tags: ['api', 'petstore']
     }
   },
   {
@@ -79,7 +80,6 @@ const ser = async () => {
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

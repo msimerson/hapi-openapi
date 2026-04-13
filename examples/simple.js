@@ -2,7 +2,6 @@
 
 const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
-const Blipp = require('blipp');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
 
@@ -24,7 +23,6 @@ const ser = async () => {
   await server.register([
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions

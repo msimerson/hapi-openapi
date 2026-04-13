@@ -2,7 +2,6 @@
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('jsonwebtoken');
-const Blipp = require('blipp');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
 
@@ -55,7 +54,6 @@ const ser = async () => {
     require('hapi-auth-jwt2'),
     Inert,
     Vision,
-    Blipp,
     {
       plugin: HapiSwagger,
       options: swaggerOptions
