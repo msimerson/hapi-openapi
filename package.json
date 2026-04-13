@@ -1,11 +1,15 @@
 {
-  "name": "hapi-swagger",
+  "name": "@msimerson/hapi-openapi",
   "description": "A swagger documentation UI generator plugin for hapi",
   "version": "17.3.2",
-  "author": "Glenn Jones",
+  "author": "Glenn Jones (https://github.com/glennjones)",
+  "contributors": [
+    "Robert McGuinness (https://github.com/robmcguinness)",
+    "Matt Simerson (https://github.com/msimerson)"
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/hapi-swagger/hapi-swagger.git"
+    "url": "git+https://github.com/msimerson/hapi-openapi.git"
   },
   "main": "index.js",
   "types": "index.d.ts",
