@@ -4,7 +4,6 @@
 const Fs = require('fs');
 const Path = require('path');
 const Hapi = require('@hapi/hapi');
-const Inert = require('@hapi/inert');
 const Http2 = require('http2');
 
 const HapiOpenapi = require('../');
@@ -78,7 +77,6 @@ const ser = async () => {
   });
 
   await server.register([
-    Inert,
     {
       plugin: HapiOpenapi,
       options: swaggerOptions

@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     dependencies:
+      '@hapi/inert':
+        specifier: '>=7.x.x'
+        version: 7.1.0
       swagger-ui-dist:
         specifier: ^5.32.2
         version: 5.32.2
@@ -39,9 +42,6 @@ importers:
       '@hapi/hapi':
         specifier: ^21.4.8
         version: 21.4.8
-      '@hapi/inert':
-        specifier: ^7.1.0
-        version: 7.1.0
       '@hapi/lab':
         specifier: ^26.0.1
         version: 26.0.1(@hapi/eslint-plugin@7.0.0(@babel/core@7.29.0)(@babel/eslint-parser@7.28.6(@babel/core@7.29.0)(eslint@9.39.4)))
@@ -295,10 +295,6 @@ packages:
   '@hapi/bossy@6.0.1':
     resolution:
       { integrity: sha512-FDccJWwjorRgnbYfRGAweq1QU3kQqTeGJNY0SwWssMo+L2CXRylifQ9VcYOz2yO2rtB/wtMe/Cyow2t7pcBs5g== }
-
-  '@hapi/bounce@3.0.1':
-    resolution:
-      { integrity: sha512-G+/Pp9c1Ha4FDP+3Sy/Xwg2O4Ahaw3lIZFSX+BL4uWi64CmiETuZPxhKDUD4xBMOUZbBlzvO8HjiK8ePnhBadA== }
 
   '@hapi/bounce@3.0.2':
     resolution:
@@ -2197,11 +2193,6 @@ snapshots:
       '@hapi/hoek': 11.0.7
       '@hapi/validate': 2.0.1
 
-  '@hapi/bounce@3.0.1':
-    dependencies:
-      '@hapi/boom': 10.0.1
-      '@hapi/hoek': 11.0.7
-
   '@hapi/bounce@3.0.2':
     dependencies:
       '@hapi/boom': 10.0.1
@@ -2291,7 +2282,7 @@ snapshots:
     dependencies:
       '@hapi/ammo': 6.0.1
       '@hapi/boom': 10.0.1
-      '@hapi/bounce': 3.0.1
+      '@hapi/bounce': 3.0.2
       '@hapi/hoek': 11.0.7
       '@hapi/validate': 2.0.1
       lru-cache: 7.18.3

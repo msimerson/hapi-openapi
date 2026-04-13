@@ -5,7 +5,6 @@
 const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
 const Basic = require('@hapi/basic');
-const Inert = require('@hapi/inert');
 
 const HapiOpenapi = require('../');
 
@@ -59,7 +58,6 @@ const ser = async () => {
   server.auth.default('simple');
 
   await server.register([
-    Inert,
     {
       plugin: HapiOpenapi,
       options: swaggerOptions

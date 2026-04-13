@@ -54,7 +54,6 @@ You will also add the routes for you API as describe on [hapi website](https://h
 
 ```Javascript
 const Hapi = require('@hapi/hapi');
-const Inert = require('@hapi/inert');
 const HapiOpenapi = require('@msimerson/hapi-openapi');
 const Pack = require('./package');
 
@@ -72,8 +71,6 @@ const Pack = require('./package');
         };
 
     await server.register([
-        Inert,
-        Vision,
         {
             plugin: HapiOpenapi,
             options: swaggerOptions
@@ -148,12 +145,6 @@ const swaggerOptions: HapiOpenapi.RegisterOptions = {
 };
 
 const plugins: Array<Hapi.ServerRegisterPluginObject<any>> = [
-    {
-        plugin: Inert
-    },
-    {
-        plugin: Vision
-    },
     {
         plugin: HapiOpenapi,
         options: swaggerOptions

@@ -2,7 +2,6 @@ const BearerToken = require('hapi-auth-bearer-token');
 const H2o2 = require('@hapi/h2o2');
 const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
-const Inert = require('@hapi/inert');
 const Wreck = require('@hapi/wreck');
 const HapiOpenapi = require('../lib/index.js');
 
@@ -18,7 +17,6 @@ helper.createServer = async (swaggerOptions, routes, serverOptions = {}) => {
   const server = new Hapi.Server(serverOptions);
 
   await server.register([
-    Inert,
     H2o2,
     {
       plugin: HapiOpenapi,
@@ -44,7 +42,7 @@ helper.createServer = async (swaggerOptions, routes, serverOptions = {}) => {
 helper.createServerMultiple = async (swaggerOptions1, swaggerOptions2, routes, serverOptions = {}) => {
   const server = new Hapi.Server(serverOptions);
 
-  await server.register([Inert, H2o2]);
+  await server.register([H2o2]);
 
   await server.register(
     {
@@ -85,7 +83,6 @@ helper.createAuthServer = async (swaggerOptions, routes, serverOptions = {}) => 
   const server = new Hapi.Server(serverOptions);
 
   await server.register([
-    Inert,
     H2o2,
     BearerToken,
     {
@@ -133,7 +130,6 @@ helper.createJWTAuthServer = async (swaggerOptions, routes) => {
   const server = new Hapi.Server();
 
   await server.register([
-    Inert,
     require('hapi-auth-jwt2'),
     {
       plugin: HapiOpenapi,

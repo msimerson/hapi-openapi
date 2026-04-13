@@ -622,8 +622,6 @@ options: {
 }
 ```
 
-With both `documentationPage` and `swaggerUI` set to false you do not need to load `Inert` and `Vision` plugins to use `hapi-openapi`.
-
 ## Simplifying the JSON
 
 The JSON output for OpenAPI(Swagger) is based on the JSONSchema standard which allows for the internal referencing of object

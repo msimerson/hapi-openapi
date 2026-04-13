@@ -54,7 +54,8 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "swagger-ui-dist": "^5.32.2"
+    "swagger-ui-dist": "^5.32.2",
+    "@hapi/inert": ">=7.x.x"
   },
   "optionalDependencies": {
     "@apidevtools/json-schema-ref-parser": "^15.3.5"
@@ -68,7 +69,6 @@
     "@hapi/eslint-plugin": "^7.0.0",
     "@hapi/h2o2": "^10.0.4",
     "@hapi/hapi": "^21.4.8",
-    "@hapi/inert": "^7.1.0",
     "@hapi/lab": "^26.0.1",
     "@hapi/wreck": "^18.1.0",
     "eslint": "^9.39.4",
@@ -85,7 +85,6 @@
   },
   "peerDependencies": {
     "@hapi/hapi": ">=20.x.x",
-    "@hapi/inert": ">=7.x.x",
     "joi": ">=17.x <19.x"
   },
   "lint-staged": {
