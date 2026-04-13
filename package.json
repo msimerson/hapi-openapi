@@ -42,17 +42,18 @@
     "precommit": "pnpm test",
     "postversion": "pnpm publish",
     "postpublish": "git push origin --all; git push origin --tags",
-    "prepare": "is-ci || husky install",
+    "prepare": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || husky install",
     "clean": "rm -rf node_modules coverage"
   },
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
-    "@apidevtools/json-schema-ref-parser": "^15.3.5",
-    "@hapi/hoek": "^11.0.7",
     "swagger-ui-dist": "^5.32.2"
+  },
+  "optionalDependencies": {
+    "@apidevtools/json-schema-ref-parser": "^15.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
@@ -72,7 +73,6 @@
     "hapi-auth-bearer-token": "^8.0.0",
     "hapi-auth-jwt2": "^11.0.0",
     "husky": "^9.1.7",
-    "is-ci": "^4.1.0",
     "joi": "^18.1.2",
     "jsonwebtoken": "^9.0.3",
     "lint-staged": "^16.4.0",

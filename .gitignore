@@ -21,3 +21,5 @@ npm-debug.log
 test/certs/server.csr
 /.history
 /package-lock.json
+CLAUDE.md
+.github/copilot-instructions.md

@@ -7,15 +7,13 @@ settings:
 importers:
   .:
     dependencies:
-      '@apidevtools/json-schema-ref-parser':
-        specifier: ^15.3.5
-        version: 15.3.5(@types/json-schema@7.0.15)
-      '@hapi/hoek':
-        specifier: ^11.0.7
-        version: 11.0.7
       swagger-ui-dist:
         specifier: ^5.32.2
         version: 5.32.2
+    optionalDependencies:
+      '@apidevtools/json-schema-ref-parser':
+        specifier: ^15.3.5
+        version: 15.3.5(@types/json-schema@7.0.15)
     devDependencies:
       '@babel/core':
         specifier: ^7.29.0
@@ -65,9 +63,6 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
-      is-ci:
-        specifier: ^4.1.0
-        version: 4.1.0
       joi:
         specifier: ^18.1.2
         version: 18.1.2
@@ -734,11 +729,6 @@ packages:
       { integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA== }
     engines: { node: '>=10' }
 
-  ci-info@4.4.0:
-    resolution:
-      { integrity: sha512-77PSwercCZU2Fc4sX94eF8k8Pxte6JAwL4/ICZLFjJLqegs7kCuAsqqj/70NQF6TvDpgFjkubQB2FW2ZZddvQg== }
-    engines: { node: '>=8' }
-
   cli-cursor@5.0.0:
     resolution:
       { integrity: sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw== }
@@ -1149,11 +1139,6 @@ packages:
   is-arrayish@0.2.1:
     resolution:
       { integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg== }
-
-  is-ci@4.1.0:
-    resolution:
-      { integrity: sha512-Ab9bQDQ11lWootZUI5qxgN2ZXwxNI5hTwnsvOc1wyxQ7zQ8OkEDw79mI0+9jI3x432NfwbVRru+3noJfXF6lSQ== }
-    hasBin: true
 
   is-core-module@2.15.0:
     resolution:
@@ -1945,6 +1930,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.1
+    optional: true
 
   '@apidevtools/json-schema-ref-parser@9.1.2':
     dependencies:
@@ -2603,8 +2589,6 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  ci-info@4.4.0: {}
-
   cli-cursor@5.0.0:
     dependencies:
       restore-cursor: 5.1.0
@@ -2955,10 +2939,6 @@ snapshots:
   irregular-plurals@3.5.0: {}
 
   is-arrayish@0.2.1: {}
-
-  is-ci@4.1.0:
-    dependencies:
-      ci-info: 4.4.0
 
   is-core-module@2.15.0:
     dependencies:
