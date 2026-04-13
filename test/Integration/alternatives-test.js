@@ -347,17 +347,6 @@ lab.experiment('alternatives', () => {
           }
         }
       },
-      Extra: {
-        type: 'object',
-        properties: {
-          width: {
-            type: 'number'
-          },
-          height: {
-            type: 'number'
-          }
-        }
-      },
       Model2: {
         type: 'object',
         properties: {
@@ -371,7 +360,7 @@ lab.experiment('alternatives', () => {
             type: 'string'
           },
           extra: {
-            $ref: '#/definitions/Extra'
+            $ref: '#/definitions/Dimensions'
           }
         }
       }
@@ -476,7 +465,7 @@ lab.experiment('alternatives', () => {
               { type: 'string', 'x-format': { uri: true } }
             ]
           },
-          extra: { anyOf: [{ $ref: '#/x-alt-definitions/Extra' }] }
+          extra: { anyOf: [{ $ref: '#/x-alt-definitions/Dimensions' }] }
         }
       }
     });
@@ -492,21 +481,17 @@ lab.experiment('alternatives', () => {
         properties: { name: { type: 'number' } },
         required: ['name']
       },
-      Alt: {
+      'Model A': {
         type: 'object',
         properties: { name: { type: 'string' } },
         required: ['name']
       },
-      Model1: {
+      'Model B': {
         type: 'object',
         properties: { name: { type: 'number' } },
         required: ['name']
       },
       Dimensions: {
-        type: 'object',
-        properties: { width: { type: 'number' }, height: { type: 'number' } }
-      },
-      Extra: {
         type: 'object',
         properties: { width: { type: 'number' }, height: { type: 'number' } }
       }
