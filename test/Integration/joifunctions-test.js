@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('validation', () => {
+describe('validation', () => {
   const routes = {
     method: 'POST',
     path: '/test',
@@ -37,11 +35,11 @@ lab.experiment('validation', () => {
     }
   };
 
-  lab.test('function not joi', async () => {
+  it('function not joi', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.parameters, [
       {
         type: 'string',
         name: 'Hidden Model',
@@ -60,12 +58,12 @@ lab.experiment('validation', () => {
         }
       }
     ]);
-    expect(response.result.definitions).to.equal({
+    assert.deepStrictEqual(response.result.definitions, {
       'Hidden Model': {
         type: 'object'
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

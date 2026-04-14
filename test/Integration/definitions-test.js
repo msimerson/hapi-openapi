@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('definitions', () => {
+describe('definitions', () => {
   const routes = [
     {
       method: 'POST',
@@ -17,22 +15,13 @@ lab.experiment('definitions', () => {
         tags: ['api'],
         validate: {
           payload: Joi.object({
-            a: Joi.number()
-              .required()
-              .description('the first number'),
+            a: Joi.number().required().description('the first number'),
 
-            b: Joi.number()
-              .required()
-              .description('the second number'),
+            b: Joi.number().required().description('the second number'),
 
-            operator: Joi.string()
-              .required()
-              .default('+')
-              .description('the operator i.e. + - / or *'),
+            operator: Joi.string().required().default('+').description('the operator i.e. + - / or *'),
 
-            equals: Joi.number()
-              .required()
-              .description('the result of the sum')
+            equals: Joi.number().required().description('the result of the sum')
           })
         }
       }
@@ -71,7 +60,7 @@ lab.experiment('definitions', () => {
     }
   ];
 
-  lab.test('payload with inline definition', async () => {
+  it('payload with inline definition', async () => {
     const server = await Helper.createServer({}, routes);
 
     const definition = {
@@ -100,29 +89,29 @@ lab.experiment('definitions', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test/'].post.parameters[0].schema).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test/'].post.parameters[0].schema, {
       $ref: '#/definitions/Model2'
     });
-    expect(response.result.definitions.Model2).to.equal(definition);
+    assert.deepStrictEqual(response.result.definitions.Model2, definition);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('override definition named Model', async () => {
+  it('override definition named Model', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
     //console.log(JSON.stringify(response.result.definitions));
-    expect(response.result.definitions.b).to.exists();
-    expect(response.result.definitions.Model).to.exists();
-    expect(response.result.definitions.Model1).to.exists();
+    assert.ok(response.result.definitions.b != null);
+    assert.ok(response.result.definitions.Model != null);
+    assert.ok(response.result.definitions.Model1 != null);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('reuseDefinitions = false', async () => {
+  it('reuseDefinitions = false', async () => {
     // forces two models even though the model hash is the same
 
     const tempRoutes = [
@@ -165,14 +154,14 @@ lab.experiment('definitions', () => {
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
     //console.log(JSON.stringify(response.result));
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.definitions.A).to.exist();
-    expect(response.result.definitions.B).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.definitions.A != null);
+    assert.ok(response.result.definitions.B != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('definitionPrefix = useLabel', async () => {
+  it('definitionPrefix = useLabel', async () => {
     // use the label as a prefix for dynamic model names
 
     const tempRoutes = [
@@ -230,15 +219,15 @@ lab.experiment('definitions', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.definitions.A).to.exist();
-    expect(response.result.definitions['A A']).to.exist();
-    expect(response.result.definitions.A1).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.definitions.A != null);
+    assert.ok(response.result.definitions['A A'] != null);
+    assert.ok(response.result.definitions.A1 != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('test that optional array is not in swagger output', async () => {
+  it('test that optional array is not in swagger output', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -260,8 +249,8 @@ lab.experiment('definitions', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.definitions.test).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.definitions.test, {
       type: 'object',
       properties: {
         a: {
@@ -275,15 +264,13 @@ lab.experiment('definitions', () => {
     });
   });
 
-  lab.test('test that name changing for required', async () => {
+  it('test that name changing for required', async () => {
     const FormDependencyDefinition = Joi.object({
       id: Joi.number().required()
     }).label('FormDependencyDefinition');
 
     const ActionDefinition = Joi.object({
-      id: Joi.number()
-        .required()
-        .allow(null),
+      id: Joi.number().required().allow(null),
       reminder: FormDependencyDefinition.required()
     }).label('ActionDefinition');
 
@@ -305,8 +292,8 @@ lab.experiment('definitions', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.definitions.ActionDefinition).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.definitions.ActionDefinition, {
       type: 'object',
       properties: {
         id: {
@@ -320,8 +307,7 @@ lab.experiment('definitions', () => {
     });
   });
 
-  lab.test('test that similar object definition with different labels are not merged', async () => {
-
+  it('test that similar object definition with different labels are not merged', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -337,7 +323,7 @@ lab.experiment('definitions', () => {
               email: Joi.string().email().required()
             }).label('user')
           }
-        },
+        }
       },
       {
         method: 'POST',
@@ -353,7 +339,7 @@ lab.experiment('definitions', () => {
               email: Joi.string().email().required()
             }).label('admin')
           }
-        },
+        }
       },
       {
         method: 'PUT',
@@ -401,7 +387,7 @@ lab.experiment('definitions', () => {
               email: Joi.string().email().required()
             })
           }
-        },
+        }
       }
     ];
 
@@ -409,11 +395,11 @@ lab.experiment('definitions', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.definitions).length).to.equal(4);
-    expect(Object.keys(response.result.definitions).includes('admin')).to.equal(true);
-    expect(Object.keys(response.result.definitions).includes('user')).to.equal(true);
-    expect(Object.keys(response.result.definitions).includes('other')).to.equal(true);
-    expect(Object.keys(response.result.definitions).includes('Model1')).to.equal(true);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.definitions).length, 4);
+    assert.deepStrictEqual(Object.keys(response.result.definitions).includes('admin'), true);
+    assert.deepStrictEqual(Object.keys(response.result.definitions).includes('user'), true);
+    assert.deepStrictEqual(Object.keys(response.result.definitions).includes('other'), true);
+    assert.deepStrictEqual(Object.keys(response.result.definitions).includes('Model1'), true);
   });
 });

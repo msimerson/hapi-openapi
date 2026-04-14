@@ -1,15 +1,51 @@
-'use strict';
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
-const Code = require('@hapi/code');
+const __includes = (container, value) => {
+  if (typeof container === 'string') {
+    if (Array.isArray(value)) {
+      return value.every((v) => container.includes(v));
+    }
+    return container.includes(value);
+  }
+
+  if (Array.isArray(container)) {
+    if (Array.isArray(value)) {
+      return value.every((v) => container.includes(v));
+    }
+    return container.includes(value);
+  }
+
+  if (container && typeof container === 'object') {
+    if (Array.isArray(value)) {
+      return value.every((k) => k in container);
+    }
+    if (typeof value === 'string') {
+      return value in container;
+    }
+    if (value && typeof value === 'object') {
+      for (const k of Object.keys(value)) {
+        try {
+          assert.deepStrictEqual(container[k], value[k]);
+        } catch {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+};
+
+('use strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Hoek = require('@hapi/hoek');
 const Helper = require('../helper.js');
 const Defaults = require('../../lib/defaults.js');
 const Properties = require('../../lib/properties.js');
-
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
 
 // parseProperty takes:   name, joiObj, parameterType, useDefinitions, isAlt
 // i.e. propertiesNoAlt.parseProperty('x', Joi.object(), null, true, false);
@@ -18,7 +54,7 @@ const lab = (exports.lab = Lab.script());
 const versions = ['v2', 'v3.0'];
 
 versions.forEach((version) => {
-  lab.experiment(`OAS ${version}`, () => {
+  describe(`OAS ${version}`, () => {
     let definitionCollection;
     let propertiesAlt;
     let propertiesNoAlt;
@@ -36,36 +72,37 @@ versions.forEach((version) => {
       propertiesNoAlt = new Properties(noAltSettings, definitionCollection, altDefinitionCollection);
     };
 
-    lab.experiment('property - ', () => {
-      lab.test('parse types', () => {
+    describe('property - ', () => {
+      it('parse types', () => {
         clearDown();
-        expect(propertiesNoAlt.parseProperty('x', null, null, true, false)).to.equal(undefined);
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', null, null, true, false), undefined);
       });
 
       // parseProperty(name, joiObj, parent, parameterType, useDefinitions, isAlt)
 
-      lab.test('parse types', () => {
+      it('parse types', () => {
         clearDown();
         //console.log(JSON.stringify(propertiesNoAlt.parseProperty('x', Joi.any(), null, null, true, false)));
-        expect(propertiesNoAlt.parseProperty('x', Joi.object(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.object(), null, 'body', true, false), {
           $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.string(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string(), null, 'body', true, false), {
           type: 'string'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.number(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.number(), null, 'body', true, false), {
           type: 'number'
         });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.number().meta({ format: 'float' }), null, 'body', true, false)
-        ).to.equal({
-          type: 'number',
-          format: 'float'
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.number().integer(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.number().meta({ format: 'float' }), null, 'body', true, false),
+          {
+            type: 'number',
+            format: 'float'
+          }
+        );
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.number().integer(), null, 'body', true, false), {
           type: 'integer'
         });
-        expect(
+        assert.deepStrictEqual(
           propertiesNoAlt.parseProperty(
             'x',
             Joi.number().integer().meta({ format: 'int64' }),
@@ -73,138 +110,166 @@ versions.forEach((version) => {
             'body',
             true,
             false
-          )
-        ).to.equal({
-          type: 'integer',
-          format: 'int64'
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.boolean(), null, 'body', true, false)).to.equal({
+          ),
+          {
+            type: 'integer',
+            format: 'int64'
+          }
+        );
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.boolean(), null, 'body', true, false), {
           type: 'boolean'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.date(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date(), null, 'body', true, false), {
           type: 'string',
           format: 'date'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.binary(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.binary(), null, 'body', true, false), {
           type: 'string',
           format: 'binary'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.array(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array(), null, 'body', true, false), {
           $ref: version === 'v2' ? '#/definitions/Model1' : '#/components/schemas/Model1'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.any(), null, 'body', true, false)).to.equal({ type: 'string' });
-        //expect(propertiesNoAlt.parseProperty('x', Joi.func(), null, 'body', true, false)).to.equal({ 'type': 'string' });
-      });
-
-      lab.test('parse types with useDefinitions=false', () => {
-        clearDown();
-        expect(propertiesNoAlt.parseProperty('x', Joi.object(), null, 'body', false, false)).to.equal({
-          type: 'object'
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.string(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.any(), null, 'body', true, false), {
           type: 'string'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.number(), null, 'body', false, false)).to.equal({
+        //assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.func(), null, 'body', true, false), { 'type': 'string' });
+      });
+
+      it('parse types with useDefinitions=false', () => {
+        clearDown();
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.object(), null, 'body', false, false), {
+          type: 'object'
+        });
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string(), null, 'body', false, false), {
+          type: 'string'
+        });
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.number(), null, 'body', false, false), {
           type: 'number'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.boolean(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.boolean(), null, 'body', false, false), {
           type: 'boolean'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.date(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date(), null, 'body', false, false), {
           type: 'string',
           format: 'date'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.binary(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.binary(), null, 'body', false, false), {
           type: 'string',
           format: 'binary'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.array(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' }
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b'), null, 'body', false, false)).to.equal({
-          type: 'string',
-          enum: ['a', 'b']
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', ''), null, 'body', false, false)
-        ).to.equal({
-          type: 'string',
-          enum: ['a', 'b']
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', null), null, 'body', false, false)
-        ).to.equal({
-          type: 'string',
-          enum: ['a', 'b'],
-          ...(version === 'v2' ? {} : { nullable: true })
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.compile(['a', 'b', null]), null, 'body', false, false)).to.equal({
-          type: 'string',
-          enum: ['a', 'b'],
-          ...(version === 'v2' ? {} : { nullable: true })
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b'), null, 'body', false, false),
+          {
+            type: 'string',
+            enum: ['a', 'b']
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', ''), null, 'body', false, false),
+          {
+            type: 'string',
+            enum: ['a', 'b']
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', null), null, 'body', false, false),
+          {
+            type: 'string',
+            enum: ['a', 'b'],
+            ...(version === 'v2' ? {} : { nullable: true })
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.compile(['a', 'b', null]), null, 'body', false, false),
+          {
+            type: 'string',
+            enum: ['a', 'b'],
+            ...(version === 'v2' ? {} : { nullable: true })
+          }
+        );
       });
 
-      lab.test('parse simple meta', () => {
+      it('parse simple meta', () => {
         clearDown();
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().description('this is bob'), null, 'body', true, false)
-        ).to.equal({ type: 'string', description: 'this is bob' });
-        expect(propertiesAlt.parseProperty('x', Joi.string().example('bob'), null, 'body', true, false)).to.equal({
-          type: 'string',
-          example: 'bob'
-        });
-        expect(propertiesAlt.parseProperty('x', Joi.allow('').example(''), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().description('this is bob'), null, 'body', true, false),
+          { type: 'string', description: 'this is bob' }
+        );
+        assert.deepStrictEqual(
+          propertiesAlt.parseProperty('x', Joi.string().example('bob'), null, 'body', true, false),
+          {
+            type: 'string',
+            example: 'bob'
+          }
+        );
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.allow('').example(''), null, 'body', true, false), {
           type: 'string',
           example: ''
         });
       });
 
-      lab.test('parse meta', () => {
+      it('parse meta', () => {
         clearDown();
         // TODO add all meta data properties
-        expect(propertiesAlt.parseProperty('x', Joi.string().meta({ x: 'y' }), null, 'body', true, false)).to.equal({
-          type: 'string',
-          'x-meta': { x: 'y' }
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().forbidden(), null, 'body', true, false)).to.equal(
+        assert.deepStrictEqual(
+          propertiesAlt.parseProperty('x', Joi.string().meta({ x: 'y' }), null, 'body', true, false),
+          {
+            type: 'string',
+            'x-meta': { x: 'y' }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().forbidden(), null, 'body', true, false),
           undefined
         );
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().required(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string().required(), null, 'body', true, false), {
           type: 'string'
         }); // required in parent
-        expect(propertiesNoAlt.parseProperty('x', Joi.any().required(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.any().required(), null, 'body', true, false), {
           type: 'string'
         }); // required in parent
-        expect(propertiesNoAlt.parseProperty('x', Joi.any().forbidden(), null, 'body', true, false)).to.equal(
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.any().forbidden(), null, 'body', true, false),
           undefined
         );
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b'), null, 'body', true, false)).to.equal({
-          $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', ''), null, 'body', true, false)
-        ).to.equal({
-          $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', null), null, 'body', true, false)
-        ).to.equal({
-          $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/Model1'
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.compile(['a', 'b', null]), null, 'body', true, false)).to.equal({
-          $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/Model2'
-        });
-        expect(
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b'), null, 'body', true, false),
+          {
+            $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', ''), null, 'body', true, false),
+          {
+            $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().valid('a', 'b', null), null, 'body', true, false),
+          {
+            $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/Model1'
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.compile(['a', 'b', null]), null, 'body', true, false),
+          {
+            $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/Model2'
+          }
+        );
+        assert.ok(
           propertiesNoAlt.parseProperty(
             'x',
             Joi.date()
               .timestamp()
               .default(() => Date.now())
-          ).default
-        ).to.exist();
+          ).default != null
+        );
         //console.log(JSON.stringify(propertiesAlt.parseProperty('x',Joi.date().timestamp().default(() => Date.now(), 'Current Timestamp'))));
 
         const nonNegativeWithDropdown = propertiesAlt.parseProperty(
@@ -224,11 +289,11 @@ versions.forEach((version) => {
           false
         );
 
-        expect(nonNegativeWithDropdown).to.include({ enum: [0] });
-        expect(nonNegativeWithoutDropdown).to.not.include({ enum: [0] });
+        assert.ok(__includes(nonNegativeWithDropdown, { enum: [0] }));
+        assert.ok(!__includes(nonNegativeWithoutDropdown, { enum: [0] }));
 
         const xmlObject = Joi.object().meta({ xml: { name: 'ObjectXML' } });
-        expect(propertiesAlt.parseProperty('x', xmlObject, null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', xmlObject, null, 'body', false, false), {
           type: 'object',
           xml: { name: 'ObjectXML' }
         });
@@ -241,7 +306,7 @@ versions.forEach((version) => {
               wrapped: true
             }
           });
-        expect(propertiesAlt.parseProperty('x', xmlArrayOfObjects, null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', xmlArrayOfObjects, null, 'body', false, false), {
           type: 'array',
           xml: { name: 'ArrayXML', wrapped: true },
           items: {
@@ -252,67 +317,77 @@ versions.forEach((version) => {
         });
       });
 
-      lab.test('parse hidden', () => {
-        expect(
-          propertiesAlt.parseProperty('x', Joi.string().meta({ swaggerHidden: true }), null, 'body', true, false)
-        ).to.equal(undefined);
-        expect(
-          propertiesAlt.parseProperty('x', Joi.string().meta({ swaggerHidden: false }), null, 'body', true, false)
-        ).to.equal({
-          type: 'string',
-          'x-meta': { swaggerHidden: false }
-        });
+      it('parse hidden', () => {
+        assert.deepStrictEqual(
+          propertiesAlt.parseProperty('x', Joi.string().meta({ swaggerHidden: true }), null, 'body', true, false),
+          undefined
+        );
+        assert.deepStrictEqual(
+          propertiesAlt.parseProperty('x', Joi.string().meta({ swaggerHidden: false }), null, 'body', true, false),
+          {
+            type: 'string',
+            'x-meta': { swaggerHidden: false }
+          }
+        );
       });
 
-      lab.test('parse type string', () => {
+      it('parse type string', () => {
         clearDown();
-        expect(propertiesNoAlt.parseProperty('x', Joi.string(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string(), null, 'body', true, false), {
           type: 'string'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().min(5), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string().min(5), null, 'body', true, false), {
           type: 'string',
           minLength: 5
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().max(10), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string().max(10), null, 'body', true, false), {
           type: 'string',
           maxLength: 10
         });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().regex(/^[a-zA-Z0-9]{3,30}/), null, 'body', true, false)
-        ).to.equal({
-          type: 'string',
-          pattern: '^[a-zA-Z0-9]{3,30}'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().regex(/^[a-zA-Z0-9]{3,30}/), null, 'body', true, false),
+          {
+            type: 'string',
+            pattern: '^[a-zA-Z0-9]{3,30}'
+          }
+        );
         // covers https://github.com/hapi-swagger/hapi-swagger/issues/652 -
         // make sure we aren't truncating the regex after an internal '/',
         // and make sure we omit any regex flags (g, i, m) from the
         // resulting pattern
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.string().regex(/^https:\/\/test.com/im), null, 'body', true, false)
-        ).to.equal({
-          type: 'string',
-          pattern: '^https:\\/\\/test.com'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().regex(/^https:\/\/test.com/im), null, 'body', true, false),
+          {
+            type: 'string',
+            pattern: '^https:\\/\\/test.com'
+          }
+        );
 
-        expect(propertiesAlt.parseProperty('x', Joi.string().length(0, 'utf8'), null, 'body', true, false)).to.equal({
-          type: 'string',
-          'x-constraint': { length: 0 }
-        });
-        expect(propertiesAlt.parseProperty('x', Joi.string().length(20, 'utf8'), null, 'body', true, false)).to.equal({
-          type: 'string',
-          'x-constraint': { length: 20 }
-        });
-        //expect(propertiesNoAlt.parseProperty('x', Joi.string().insensitive())).to.equal({ 'type': 'string', 'x-constraint': { 'insensitive': true } });
+        assert.deepStrictEqual(
+          propertiesAlt.parseProperty('x', Joi.string().length(0, 'utf8'), null, 'body', true, false),
+          {
+            type: 'string',
+            'x-constraint': { length: 0 }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesAlt.parseProperty('x', Joi.string().length(20, 'utf8'), null, 'body', true, false),
+          {
+            type: 'string',
+            'x-constraint': { length: 20 }
+          }
+        );
+        //assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string().insensitive()), { 'type': 'string', 'x-constraint': { 'insensitive': true } });
 
-        expect(propertiesAlt.parseProperty('x', Joi.string().creditCard(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().creditCard(), null, 'body', true, false), {
           type: 'string',
           'x-format': { creditCard: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().alphanum(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().alphanum(), null, 'body', true, false), {
           type: 'string',
           'x-format': { alphanum: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().token(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().token(), null, 'body', true, false), {
           type: 'string',
           'x-format': { token: true }
         });
@@ -330,11 +405,11 @@ versions.forEach((version) => {
           true
         );
 
-        expect(result.type).to.equal('string');
-        expect(result['x-format'].email.tlds.allow).to.exist();
-        expect(result['x-format'].email.minDomainSegments).to.equal(2);
+        assert.deepStrictEqual(result.type, 'string');
+        assert.ok(result['x-format'].email.tlds.allow != null);
+        assert.deepStrictEqual(result['x-format'].email.minDomainSegments, 2);
 
-        expect(
+        assert.deepStrictEqual(
           propertiesAlt.parseProperty(
             'x',
             Joi.string().ip({
@@ -344,24 +419,25 @@ versions.forEach((version) => {
             null,
             true,
             true
-          )
-        ).to.equal({
-          type: 'string',
-          'x-format': {
-            ip: {
-              version: ['ipv4', 'ipv6'],
-              cidr: 'required'
+          ),
+          {
+            type: 'string',
+            'x-format': {
+              ip: {
+                version: ['ipv4', 'ipv6'],
+                cidr: 'required'
+              }
             }
           }
-        });
+        );
 
         /* TODO fix this so that regexp work or document the fact it does not work
-         expect(propertiesNoAlt.parseProperty('x', Joi.string().uri({
+         assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.string().uri({
              scheme: [
                  'git',
                  /git\+https?/
              ]
-         }))).to.equal({ 'type': 'string', 'x-format': {
+         })), { 'type': 'string', 'x-format': {
              'uri': {
                  'scheme': [
                      'git',
@@ -371,82 +447,98 @@ versions.forEach((version) => {
          } });
          */
 
-        expect(propertiesAlt.parseProperty('x', Joi.string().guid(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().guid(), null, 'body', true, true), {
           type: 'string',
           'x-format': { guid: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().hex(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().hex(), null, 'body', true, true), {
           type: 'string',
           'x-format': { hex: { byteAligned: false, prefix: false } }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().guid(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().guid(), null, 'body', true, true), {
           type: 'string',
           'x-format': { guid: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().hostname(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().hostname(), null, 'body', true, true), {
           type: 'string',
           'x-format': { hostname: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().isoDate(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().isoDate(), null, 'body', true, true), {
           type: 'string',
           'x-format': { isoDate: true }
         });
 
-        expect(propertiesAlt.parseProperty('x', Joi.string().lowercase(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().lowercase(), null, 'body', true, true), {
           type: 'string',
           'x-convert': { case: 'lower' }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().uppercase(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().uppercase(), null, 'body', true, true), {
           type: 'string',
           'x-convert': { case: 'upper' }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.string().trim(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.string().trim(), null, 'body', true, true), {
           type: 'string',
           'x-convert': { trim: true }
         });
 
         // test options.xProperties = false
-        expect(propertiesNoAlt.parseProperty('x', Joi.string().lowercase(), null, 'body', true, false)).to.equal({
-          type: 'string'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.string().lowercase(), null, 'body', true, false),
+          {
+            type: 'string'
+          }
+        );
       });
 
-      lab.test('parse type date', () => {
+      it('parse type date', () => {
         clearDown();
-        expect(propertiesNoAlt.parseProperty('x', Joi.date(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date(), null, 'body', true, false), {
           type: 'string',
           format: 'date'
         });
 
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().min('1-1-1974'), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.date().min('1-1-1974'), null, 'body', true, false),
+          {
+            type: 'string',
+            format: 'date'
+          }
+        );
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date().min('now'), null, 'body', true, false), {
           type: 'string',
           format: 'date'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().min('now'), null, 'body', true, false)).to.equal({
-          type: 'string',
-          format: 'date'
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().min(Joi.ref('y')), null, 'body', true, false)).to.equal({
-          type: 'string',
-          format: 'date'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.date().min(Joi.ref('y')), null, 'body', true, false),
+          {
+            type: 'string',
+            format: 'date'
+          }
+        );
 
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().max('1-1-1974'), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.date().max('1-1-1974'), null, 'body', true, false),
+          {
+            type: 'string',
+            format: 'date'
+          }
+        );
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date().max('now'), null, 'body', true, false), {
           type: 'string',
           format: 'date'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().max('now'), null, 'body', true, false)).to.equal({
-          type: 'string',
-          format: 'date'
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().max(Joi.ref('y')), null, 'body', true, false)).to.equal({
-          type: 'string',
-          format: 'date'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.date().max(Joi.ref('y')), null, 'body', true, false),
+          {
+            type: 'string',
+            format: 'date'
+          }
+        );
 
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.date().min('1-1-1974').max('now'), null, 'body', true, false)
-        ).to.equal({ type: 'string', format: 'date' });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.date().min('1-1-1974').max('now'), null, 'body', true, false),
+          { type: 'string', format: 'date' }
+        );
 
         /*  not yet 'x',
           date.min(date)
@@ -456,141 +548,155 @@ versions.forEach((version) => {
           */
       });
 
-      lab.test('parse type date timestamp', () => {
+      it('parse type date timestamp', () => {
         clearDown();
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().timestamp(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date().timestamp(), null, 'body', true, false), {
           type: 'integer'
         });
       });
 
-      lab.test('parse type date iso', () => {
+      it('parse type date iso', () => {
         clearDown();
-        expect(propertiesNoAlt.parseProperty('x', Joi.date().iso(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.date().iso(), null, 'body', true, false), {
           type: 'string',
           format: 'date-time'
         });
       });
 
-      lab.test('parse type number', () => {
+      it('parse type number', () => {
         clearDown();
         // mapped direct to openapi
-        expect(propertiesNoAlt.parseProperty('x', Joi.number().integer(), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.number().integer(), null, 'body', true, false), {
           type: 'integer'
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.number().min(5), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.number().min(5), null, 'body', true, false), {
           type: 'number',
           minimum: 5
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.number().max(10), null, 'body', true, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.number().max(10), null, 'body', true, false), {
           type: 'number',
           maximum: 10
         });
 
         // x-* mappings
-        expect(propertiesAlt.parseProperty('x', Joi.number().greater(10), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.number().greater(10), null, 'body', true, true), {
           type: 'number',
           'x-constraint': { greater: 10 }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.number().less(10), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.number().less(10), null, 'body', true, true), {
           type: 'number',
           'x-constraint': { less: 10 }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.number().precision(2), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.number().precision(2), null, 'body', true, true), {
           type: 'number',
           'x-constraint': { precision: 2 }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.number().multiple(2), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.number().multiple(2), null, 'body', true, true), {
           type: 'number',
           'x-constraint': { multiple: 2 }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.number().positive(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.number().positive(), null, 'body', true, true), {
           type: 'number',
           'x-constraint': { sign: 'positive' }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.number().negative(), null, 'body', true, true)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.number().negative(), null, 'body', true, true), {
           type: 'number',
           'x-constraint': { sign: 'negative' }
         });
 
         // test options.xProperties = false
-        expect(propertiesNoAlt.parseProperty('x', Joi.number().greater(10), null, 'body', true, false)).to.equal({
-          type: 'number'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.number().greater(10), null, 'body', true, false),
+          {
+            type: 'number'
+          }
+        );
       });
 
-      lab.test('parse type array', () => {
+      it('parse type array', () => {
         clearDown();
 
         // basic child types
-        expect(propertiesNoAlt.parseProperty('x', Joi.array(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' }
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.array().items(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array().items(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' }
         });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string(), Joi.number()), null, 'body', false, false)
-        ).to.equal({
-          type: 'array',
-          name: 'x',
-          items: version === 'v2' ? { type: 'string' } : { anyOf: [{ type: 'string' }, { type: 'number' }] }
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.object()), null, 'body', false, false)
-        ).to.equal({
-          type: 'array',
-          name: 'x',
-          items: { type: 'object' }
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string()), null, 'body', false, false)
-        ).to.equal({
-          type: 'array',
-          name: 'x',
-          items: { type: 'string' }
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.number()), null, 'body', false, false)
-        ).to.equal({
-          type: 'array',
-          name: 'x',
-          items: { type: 'number' }
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.boolean()), null, 'body', false, false)
-        ).to.equal({
-          type: 'array',
-          name: 'x',
-          items: { type: 'boolean' }
-        });
-        expect(propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.date()), null, 'body', false, false)).to.equal({
-          type: 'array',
-          name: 'x',
-          items: { type: 'string', format: 'date' }
-        });
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.binary()), null, 'body', false, false)
-        ).to.equal({
-          type: 'array',
-          name: 'x',
-          items: { type: 'string', format: 'binary' }
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string(), Joi.number()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: version === 'v2' ? { type: 'string' } : { anyOf: [{ type: 'string' }, { type: 'number' }] }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.object()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: { type: 'object' }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: { type: 'string' }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.number()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: { type: 'number' }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.boolean()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: { type: 'boolean' }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.date()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: { type: 'string', format: 'date' }
+          }
+        );
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.binary()), null, 'body', false, false),
+          {
+            type: 'array',
+            name: 'x',
+            items: { type: 'string', format: 'binary' }
+          }
+        );
 
         // complex child types - arrays and objects
 
         clearDown();
         //console.log(JSON.stringify(propertiesNoAlt.parseProperty('x', Joi.array().items({ 'text': Joi.string() }), null, 'formData', true, false)));
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string()), null, 'formData', true, false)
-        ).to.equal({
-          $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string()), null, 'formData', true, false),
+          {
+            $ref: version === 'v2' ? '#/definitions/x' : '#/components/schemas/x'
+          }
+        );
         //console.log(JSON.stringify(definitionCollection));
-        expect(definitionCollection).to.equal(
+        assert.deepStrictEqual(
+          definitionCollection,
           version === 'v2'
             ? {
                 x: {
@@ -615,18 +721,19 @@ versions.forEach((version) => {
         // Joi.array().items(Joi.array().items(Joi.string())
 
         // make sure type features such as string().min(1)in array items are past into JSON
-        expect(
-          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string().min(1)), null, 'body', false, false)
-        ).to.equal({ type: 'array', items: { type: 'string', minLength: 1 }, name: 'x' });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', Joi.array().items(Joi.string().min(1)), null, 'body', false, false),
+          { type: 'array', items: { type: 'string', minLength: 1 }, name: 'x' }
+        );
 
         // mapped direct to openapi
-        expect(propertiesNoAlt.parseProperty('x', Joi.array().min(5), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array().min(5), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
           minItems: 5
         });
-        expect(propertiesNoAlt.parseProperty('x', Joi.array().max(10), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array().max(10), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
@@ -634,25 +741,25 @@ versions.forEach((version) => {
         });
 
         // x-* mappings
-        expect(propertiesAlt.parseProperty('x', Joi.array().sparse(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.array().sparse(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
           'x-constraint': { sparse: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.array().single(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.array().single(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
           'x-constraint': { single: true }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.array().length(0), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.array().length(0), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
           'x-constraint': { length: 0 }
         });
-        expect(propertiesAlt.parseProperty('x', Joi.array().length(2), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.array().length(2), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
@@ -660,7 +767,7 @@ versions.forEach((version) => {
         });
 
         // https://github.com/hapijs/joi/pull/1511
-        expect(propertiesAlt.parseProperty('x', Joi.array().unique(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesAlt.parseProperty('x', Joi.array().unique(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' },
@@ -668,7 +775,7 @@ versions.forEach((version) => {
         });
 
         // test options.xProperties = false
-        expect(propertiesNoAlt.parseProperty('x', Joi.array().sparse(), null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.array().sparse(), null, 'body', false, false), {
           type: 'array',
           name: 'x',
           items: { type: 'string' }
@@ -676,32 +783,38 @@ versions.forEach((version) => {
       });
     });
 
-    lab.test('parse type object', () => {
+    it('parse type object', () => {
       clearDown();
       //console.log(JSON.stringify( propertiesNoAlt.parseProperty('x', Joi.object(), {}, {}, 'formData')  ));
-      expect(propertiesNoAlt.parseProperty('x', Joi.object(), null, 'body', false, false)).to.equal({ type: 'object' });
-      expect(propertiesNoAlt.parseProperty('x', Joi.object().keys(), null, 'body', false, false)).to.equal({
+      assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.object(), null, 'body', false, false), {
         type: 'object'
       });
-      expect(
-        propertiesNoAlt.parseProperty('x', Joi.object().keys({ a: Joi.string() }), null, 'body', false, false)
-      ).to.equal({
-        type: 'object',
-        properties: {
-          a: {
-            type: 'string'
+      assert.deepStrictEqual(propertiesNoAlt.parseProperty('x', Joi.object().keys(), null, 'body', false, false), {
+        type: 'object'
+      });
+      assert.deepStrictEqual(
+        propertiesNoAlt.parseProperty('x', Joi.object().keys({ a: Joi.string() }), null, 'body', false, false),
+        {
+          type: 'object',
+          properties: {
+            a: {
+              type: 'string'
+            }
           }
         }
-      });
-      expect(propertiesNoAlt.parseProperty('x', Joi.object({ a: Joi.string() }), null, 'body', false, false)).to.equal({
-        type: 'object',
-        properties: {
-          a: {
-            type: 'string'
+      );
+      assert.deepStrictEqual(
+        propertiesNoAlt.parseProperty('x', Joi.object({ a: Joi.string() }), null, 'body', false, false),
+        {
+          type: 'object',
+          properties: {
+            a: {
+              type: 'string'
+            }
           }
         }
-      });
-      expect(
+      );
+      assert.deepStrictEqual(
         propertiesNoAlt.parseProperty(
           'x',
           Joi.object({
@@ -716,29 +829,33 @@ versions.forEach((version) => {
           'body',
           false,
           false
-        )
-      ).to.equal({
-        type: 'object',
-        properties: {
-          a: {
-            type: 'string'
+        ),
+        {
+          type: 'object',
+          properties: {
+            a: {
+              type: 'string'
+            },
+            b: {
+              type: 'string'
+            }
           },
-          b: {
-            type: 'string'
-          }
-        },
-        required: ['b']
-      });
-      expect(propertiesNoAlt.parseProperty('x', Joi.object({ a: Joi.string() }), null, 'body', false, false)).to.equal({
-        type: 'object',
-        properties: {
-          a: {
-            type: 'string'
+          required: ['b']
+        }
+      );
+      assert.deepStrictEqual(
+        propertiesNoAlt.parseProperty('x', Joi.object({ a: Joi.string() }), null, 'body', false, false),
+        {
+          type: 'object',
+          properties: {
+            a: {
+              type: 'string'
+            }
           }
         }
-      });
+      );
       // test without pattern schema example
-      expect(
+      assert.deepStrictEqual(
         propertiesNoAlt.parseProperty(
           'x',
           Joi.object().pattern(
@@ -751,22 +868,23 @@ versions.forEach((version) => {
           'body',
           false,
           false
-        )
-      ).to.equal({
-        type: 'object',
-        properties: {
-          string: {
-            type: 'object',
-            properties: {
-              y: {
-                type: 'string'
+        ),
+        {
+          type: 'object',
+          properties: {
+            string: {
+              type: 'object',
+              properties: {
+                y: {
+                  type: 'string'
+                }
               }
             }
           }
         }
-      });
+      );
       // test with pattern schema example
-      expect(
+      assert.deepStrictEqual(
         propertiesNoAlt.parseProperty(
           'x',
           Joi.object().pattern(
@@ -779,22 +897,23 @@ versions.forEach((version) => {
           'body',
           false,
           false
-        )
-      ).to.equal({
-        type: 'object',
-        properties: {
-          a: {
-            type: 'object',
-            properties: {
-              y: {
-                type: 'string'
+        ),
+        {
+          type: 'object',
+          properties: {
+            a: {
+              type: 'object',
+              properties: {
+                y: {
+                  type: 'string'
+                }
               }
             }
           }
         }
-      });
+      );
       // test with regex as pattern
-      expect(
+      assert.deepStrictEqual(
         propertiesNoAlt.parseProperty(
           'x',
           Joi.object().pattern(
@@ -807,23 +926,24 @@ versions.forEach((version) => {
           'body',
           false,
           false
-        )
-      ).to.equal({
-        type: 'object',
-        properties: {
-          string: {
-            type: 'object',
-            properties: {
-              y: {
-                type: 'string'
+        ),
+        {
+          type: 'object',
+          properties: {
+            string: {
+              type: 'object',
+              properties: {
+                y: {
+                  type: 'string'
+                }
               }
             }
           }
         }
-      });
+      );
     });
 
-    lab.experiment('property deep - ', () => {
+    describe('property deep - ', () => {
       clearDown();
       const deepStructure = Joi.object({
         outer1: Joi.object({
@@ -849,10 +969,10 @@ versions.forEach((version) => {
 
       //console.log(JSON.stringify( propertiesNoAlt.parseProperty( deepStructure, {}, {}, null, false ) ));
 
-      lab.test('parse structure with child labels', () => {
+      it('parse structure with child labels', () => {
         //console.log(JSON.stringify( propertiesNoAlt.parseProperty(null, deepStructure, null, false, false)  ));
 
-        expect(propertiesNoAlt.parseProperty(null, deepStructure, null, 'body', false, false)).to.equal({
+        assert.deepStrictEqual(propertiesNoAlt.parseProperty(null, deepStructure, null, 'body', false, false), {
           type: 'object',
           properties: {
             outer1: {
@@ -886,7 +1006,7 @@ versions.forEach((version) => {
         });
       });
 
-      lab.test('parse structure with child description, notes, name etc', async () => {
+      it('parse structure with child description, notes, name etc', async () => {
         clearDown();
         const routes = [
           {
@@ -906,7 +1026,7 @@ versions.forEach((version) => {
         const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
         //console.log(JSON.stringify(response.result.definitions));
-        expect(response.result.definitions.outer1).to.equal({
+        assert.deepStrictEqual(response.result.definitions.outer1, {
           properties: {
             inner1: {
               'x-meta': {
@@ -925,16 +1045,19 @@ versions.forEach((version) => {
       });
     });
 
-    lab.experiment('joi extension - ', () => {
-      lab.test('custom joi extension', () => {
+    describe('joi extension - ', () => {
+      it('custom joi extension', () => {
         clearDown();
         const extension = Joi.extend({
           base: Joi.string(),
           type: 'myCustomName'
         });
-        expect(propertiesNoAlt.parseProperty('x', extension.myCustomName(), null, 'body', true, false)).to.equal({
-          type: 'string'
-        });
+        assert.deepStrictEqual(
+          propertiesNoAlt.parseProperty('x', extension.myCustomName(), null, 'body', true, false),
+          {
+            type: 'string'
+          }
+        );
       });
     });
   });

@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('info', () => {
+describe('info', () => {
   const routes = [
     {
       method: 'GET',
@@ -18,29 +16,29 @@ lab.experiment('info', () => {
     }
   ];
 
-  lab.test('no info object passed', async () => {
+  it('no info object passed', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.info).to.equal({ title: 'API documentation', version: '0.0.1' });
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.info, { title: 'API documentation', version: '0.0.1' });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('no info title property passed', async () => {
+  it('no info title property passed', async () => {
     const swaggerOptions = {
       info: {}
     };
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.info).to.equal({ title: 'API documentation', version: '0.0.1' });
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.info, { title: 'API documentation', version: '0.0.1' });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('min valid info object', async () => {
+  it('min valid info object', async () => {
     const swaggerOptions = {
       info: {
         title: 'test title for lab',
@@ -50,13 +48,13 @@ lab.experiment('info', () => {
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.info).to.equal(swaggerOptions.info);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.info, swaggerOptions.info);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('full info object', async () => {
+  it('full info object', async () => {
     const swaggerOptions = {
       info: {
         title: 'Swagger Petstore',
@@ -75,13 +73,13 @@ lab.experiment('info', () => {
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.info).to.equal(swaggerOptions.info);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.info, swaggerOptions.info);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('info object with custom properties', async () => {
+  it('info object with custom properties', async () => {
     const swaggerOptions = {
       info: {
         title: 'test title for lab',
@@ -92,7 +90,7 @@ lab.experiment('info', () => {
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.info).to.equal(swaggerOptions.info);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.info, swaggerOptions.info);
   });
 });

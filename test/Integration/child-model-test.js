@@ -1,15 +1,13 @@
-'use strict';
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
-const Code = require('@hapi/code');
+('use strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('child-models', () => {
+describe('child-models', () => {
   const requestOptions = {
     method: 'GET',
     url: '/swagger.json',
@@ -96,17 +94,17 @@ lab.experiment('child-models', () => {
     }
   ];
 
-  lab.test('child definitions models', async () => {
+  it('child definitions models', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/foo/v1/bar'].post.parameters[0].schema).to.equal({
+    assert.deepStrictEqual(response.result.paths['/foo/v1/bar'].post.parameters[0].schema, {
       $ref: '#/definitions/Model1'
     });
 
-    expect(response.result.definitions.Model1).to.equal({
+    assert.deepStrictEqual(response.result.definitions.Model1, {
       properties: {
         outer1: {
           $ref: '#/definitions/outer1'
@@ -118,7 +116,7 @@ lab.experiment('child-models', () => {
       type: 'object'
     });
 
-    expect(response.result.definitions.outer1).to.equal({
+    assert.deepStrictEqual(response.result.definitions.outer1, {
       properties: {
         inner1: {
           type: 'string'
@@ -127,22 +125,22 @@ lab.experiment('child-models', () => {
       type: 'object'
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('object within an object - array within an array', async () => {
+  it('object within an object - array within an array', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/bar/objects'].post.parameters[0].schema).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/objects'].post.parameters[0].schema, {
       $ref: '#/definitions/FooObjParent'
     });
-    expect(response.result.paths['/bar/objects'].post.responses[200].schema).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/objects'].post.responses[200].schema, {
       $ref: '#/definitions/FooObjParent'
     });
-    expect(response.result.definitions.FooObjParent).to.equal({
+    assert.deepStrictEqual(response.result.definitions.FooObjParent, {
       type: 'object',
       properties: {
         foos: {
@@ -150,7 +148,7 @@ lab.experiment('child-models', () => {
         }
       }
     });
-    expect(response.result.definitions.FooObj).to.equal({
+    assert.deepStrictEqual(response.result.definitions.FooObj, {
       type: 'object',
       properties: {
         foo: {
@@ -160,25 +158,25 @@ lab.experiment('child-models', () => {
       }
     });
 
-    expect(response.result.paths['/bar/arrays'].post.parameters[0].schema).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/arrays'].post.parameters[0].schema, {
       $ref: '#/definitions/FooArrParent'
     });
-    expect(response.result.paths['/bar/arrays'].post.responses[200].schema).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/arrays'].post.responses[200].schema, {
       $ref: '#/definitions/FooArrParent'
     });
-    expect(response.result.definitions.FooArrParent).to.equal({
+    assert.deepStrictEqual(response.result.definitions.FooArrParent, {
       type: 'array',
       items: {
         $ref: '#/definitions/FooArr'
       }
     });
-    expect(response.result.definitions.FooArr).to.equal({
+    assert.deepStrictEqual(response.result.definitions.FooArr, {
       type: 'array',
       items: {
         $ref: '#/definitions/FooArrObj'
       }
     });
-    expect(response.result.definitions.FooArrObj).to.equal({
+    assert.deepStrictEqual(response.result.definitions.FooArrObj, {
       type: 'object',
       properties: {
         bar: {

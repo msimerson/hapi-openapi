@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('definitions (OpenAPI)', () => {
+describe('definitions (OpenAPI)', () => {
   const routes = [
     {
       method: 'POST',
@@ -62,7 +60,7 @@ lab.experiment('definitions (OpenAPI)', () => {
     }
   ];
 
-  lab.test('payload with inline definition', async () => {
+  it('payload with inline definition', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
 
     const definition = {
@@ -91,8 +89,8 @@ lab.experiment('definitions (OpenAPI)', () => {
 
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -101,25 +99,25 @@ lab.experiment('definitions (OpenAPI)', () => {
         }
       }
     });
-    expect(response.result.components.schemas.Model2).to.equal(definition);
+    assert.deepStrictEqual(response.result.components.schemas.Model2, definition);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('override definition named Model', async () => {
+  it('override definition named Model', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
     //console.log(JSON.stringify(response.result.definitions));
-    expect(response.result.components.schemas.b).to.exists();
-    expect(response.result.components.schemas.Model).to.exists();
-    expect(response.result.components.schemas.Model1).to.exists();
+    assert.ok(response.result.components.schemas.b != null);
+    assert.ok(response.result.components.schemas.Model != null);
+    assert.ok(response.result.components.schemas.Model1 != null);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('reuseDefinitions = false', async () => {
+  it('reuseDefinitions = false', async () => {
     // forces two models even though the model hash is the same
 
     const tempRoutes = [
@@ -162,14 +160,14 @@ lab.experiment('definitions (OpenAPI)', () => {
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
     //console.log(JSON.stringify(response.result));
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.components.schemas.A).to.exist();
-    expect(response.result.components.schemas.B).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.components.schemas.A != null);
+    assert.ok(response.result.components.schemas.B != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('definitionPrefix = useLabel', async () => {
+  it('definitionPrefix = useLabel', async () => {
     // use the label as a prefix for dynamic model names
 
     const tempRoutes = [
@@ -227,15 +225,15 @@ lab.experiment('definitions (OpenAPI)', () => {
 
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.components.schemas.A).to.exist();
-    expect(response.result.components.schemas['A A']).to.exist();
-    expect(response.result.components.schemas.A1).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.components.schemas.A != null);
+    assert.ok(response.result.components.schemas['A A'] != null);
+    assert.ok(response.result.components.schemas.A1 != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('test that optional array is not in swagger output', async () => {
+  it('test that optional array is not in swagger output', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -257,8 +255,8 @@ lab.experiment('definitions (OpenAPI)', () => {
 
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.components.schemas.test).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.components.schemas.test, {
       type: 'object',
       properties: {
         a: {
@@ -272,7 +270,7 @@ lab.experiment('definitions (OpenAPI)', () => {
     });
   });
 
-  lab.test('test that name changing for required', async () => {
+  it('test that name changing for required', async () => {
     const FormDependencyDefinition = Joi.object({
       id: Joi.number().required()
     }).label('FormDependencyDefinition');
@@ -300,8 +298,8 @@ lab.experiment('definitions (OpenAPI)', () => {
 
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.components.schemas.ActionDefinition).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.components.schemas.ActionDefinition, {
       type: 'object',
       properties: {
         id: {
@@ -316,7 +314,7 @@ lab.experiment('definitions (OpenAPI)', () => {
     });
   });
 
-  lab.test('test that similar object definition with different labels are not merged', async () => {
+  it('test that similar object definition with different labels are not merged', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -404,11 +402,11 @@ lab.experiment('definitions (OpenAPI)', () => {
 
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.components.schemas).length).to.equal(4);
-    expect(Object.keys(response.result.components.schemas).includes('admin')).to.equal(true);
-    expect(Object.keys(response.result.components.schemas).includes('user')).to.equal(true);
-    expect(Object.keys(response.result.components.schemas).includes('other')).to.equal(true);
-    expect(Object.keys(response.result.components.schemas).includes('Model1')).to.equal(true);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.components.schemas).length, 4);
+    assert.deepStrictEqual(Object.keys(response.result.components.schemas).includes('admin'), true);
+    assert.deepStrictEqual(Object.keys(response.result.components.schemas).includes('user'), true);
+    assert.deepStrictEqual(Object.keys(response.result.components.schemas).includes('other'), true);
+    assert.deepStrictEqual(Object.keys(response.result.components.schemas).includes('Model1'), true);
   });
 });

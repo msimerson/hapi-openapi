@@ -1,14 +1,12 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Builder = require('../../lib/builder.js');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('dereference', () => {
+describe('dereference', () => {
   const routes = [
     {
       method: 'POST',
@@ -28,11 +26,11 @@ lab.experiment('dereference', () => {
     }
   ];
 
-  lab.test('flatten with no references', async () => {
+  it('flatten with no references', async () => {
     const server = await Helper.createServer({ deReference: true }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/store/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters, [
       {
         in: 'body',
         name: 'body',
@@ -56,10 +54,10 @@ lab.experiment('dereference', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('flatten with no references on OAS v3', async () => {
+  it('flatten with no references on OAS v3', async () => {
     const swaggerOptions = {
       deReference: true,
       OAS: 'v3.0',
@@ -73,9 +71,9 @@ lab.experiment('dereference', () => {
     };
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.result.components).to.equal({ securitySchemes: swaggerOptions.securityDefinitions });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/store/'].post.requestBody.content).to.equal({
+    assert.deepStrictEqual(response.result.components, { securitySchemes: swaggerOptions.securityDefinitions });
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.requestBody.content, {
       'application/json': {
         schema: {
           properties: {
@@ -97,14 +95,14 @@ lab.experiment('dereference', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('flatten with no references (OpenAPI)', async () => {
+  it('flatten with no references (OpenAPI)', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0', deReference: true }, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/store/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -128,15 +126,15 @@ lab.experiment('dereference', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('dereferences error', async () => {
+  it('dereferences error', async () => {
     try {
       await Builder.dereference(null);
     } catch (err) {
-      expect(err).to.exists();
-      expect(err.message).to.equal('failed to dereference schema');
+      assert.ok(err != null);
+      assert.deepStrictEqual(err.message, 'failed to dereference schema');
     }
   });
 });

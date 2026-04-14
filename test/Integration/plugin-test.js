@@ -1,18 +1,54 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
+const __includes = (container, value) => {
+  if (typeof container === 'string') {
+    if (Array.isArray(value)) {
+      return value.every((v) => container.includes(v));
+    }
+    return container.includes(value);
+  }
+
+  if (Array.isArray(container)) {
+    if (Array.isArray(value)) {
+      return value.every((v) => container.includes(v));
+    }
+    return container.includes(value);
+  }
+
+  if (container && typeof container === 'object') {
+    if (Array.isArray(value)) {
+      return value.every((k) => k in container);
+    }
+    if (typeof value === 'string') {
+      return value in container;
+    }
+    if (value && typeof value === 'object') {
+      for (const k of Object.keys(value)) {
+        try {
+          assert.deepStrictEqual(container[k], value[k]);
+        } catch {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const Hapi = require('@hapi/hapi');
 const Hoek = require('@hapi/hoek');
 const Inert = require('@hapi/inert');
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Pack = require('../../package.json');
 const HapiOpenapi = require('../../lib/index.js');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('plugin', () => {
+describe('plugin', () => {
   const routes = [
     {
       method: 'POST',
@@ -32,51 +68,51 @@ lab.experiment('plugin', () => {
     }
   ];
 
-  lab.test('plug-in register no inert dependency', async () => {
+  it('plug-in register no inert dependency', async () => {
     try {
       const server = new Hapi.Server();
       await server.register([HapiOpenapi]);
       server.route(routes);
       await server.start();
     } catch (err) {
-      expect(err.message).to.equal(`Plugin ${Pack.name} missing dependency @hapi/inert`);
+      assert.deepStrictEqual(err.message, `Plugin ${Pack.name} missing dependency @hapi/inert`);
     }
   });
 
-  lab.test('plug-in register no options', async () => {
+  it('plug-in register no options', async () => {
     try {
       const server = new Hapi.Server();
       await server.register([Inert, HapiOpenapi]);
       server.route(routes);
       await server.start();
-      expect(server).to.be.an.object();
+      assert.ok(server !== null && typeof server === 'object' && !Array.isArray(server));
     } catch (err) {
-      expect(err).to.equal(undefined);
+      assert.deepStrictEqual(err, undefined);
     }
   });
 
-  lab.test('fail plug-in register with bad options', async () => {
+  it('fail plug-in register with bad options', async () => {
     const badOptions = {
       validate: 42
     };
     try {
       await Helper.createServer(badOptions, routes);
     } catch (err) {
-      expect(err).to.exist();
-      expect(err.name).to.equal('ValidationError');
-      expect(err.details).to.have.length(1);
-      expect(err.details[0].message).to.equal('"validate" must be of type object');
+      assert.ok(err != null);
+      assert.deepStrictEqual(err.name, 'ValidationError');
+      assert.strictEqual(err.details.length ?? Object.keys(err.details).length, 1);
+      assert.deepStrictEqual(err.details[0].message, '"validate" must be of type object');
     }
   });
 
-  lab.test('plug-in register test', async () => {
+  it('plug-in register test', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(1);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 1);
   });
 
-  lab.test('plug-in register with validate option', async () => {
+  it('plug-in register with validate option', async () => {
     const pluginOptions = {
       validate: {
         headers: true
@@ -84,11 +120,11 @@ lab.experiment('plugin', () => {
     };
     const server = await Helper.createServer(pluginOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(1);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 1);
   });
 
-  lab.test('plug-in register with server validation options', async () => {
+  it('plug-in register with server validation options', async () => {
     const serverOptions = {
       routes: {
         validate: {
@@ -104,14 +140,14 @@ lab.experiment('plugin', () => {
     };
     const server = await Helper.createServer(undefined, routes, serverOptions);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(400);
-    expect(response.statusMessage).to.equal('Bad Request');
-    expect(response.result.statusCode).to.equal(400);
-    expect(response.result.error).to.equal('Bad Request');
-    expect(response.result.message).to.equal('"authorization" is required');
+    assert.deepStrictEqual(response.statusCode, 400);
+    assert.deepStrictEqual(response.statusMessage, 'Bad Request');
+    assert.deepStrictEqual(response.result.statusCode, 400);
+    assert.deepStrictEqual(response.result.error, 'Bad Request');
+    assert.deepStrictEqual(response.result.message, '"authorization" is required');
   });
 
-  lab.test('plug-in register and overrride server validation options', async () => {
+  it('plug-in register and overrride server validation options', async () => {
     const serverOptions = {
       routes: {
         validate: {
@@ -132,32 +168,32 @@ lab.experiment('plugin', () => {
     };
     const server = await Helper.createServer(pluginOptions, routes, serverOptions);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(1);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 1);
   });
 
-  lab.test('default jsonPath url', async () => {
+  it('default jsonPath url', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('default documentationPath url', async () => {
+  it('default documentationPath url', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/documentation' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('default swaggerUIPath url', async () => {
+  it('default swaggerUIPath url', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swaggerui/swagger-ui.js' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('swaggerUIPath + extend.js remapping', async () => {
+  it('swaggerUIPath + extend.js remapping', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swaggerui/extend.js' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
   const swaggerOptions = {
@@ -166,13 +202,13 @@ lab.experiment('plugin', () => {
     swaggerUIPath: '/testui/'
   };
 
-  lab.test('repathed jsonPath url', async () => {
+  it('repathed jsonPath url', async () => {
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/test.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('repathed jsonPath url and jsonRoutePath', async () => {
+  it('repathed jsonPath url and jsonRoutePath', async () => {
     const jsonRoutePath = '/testRoute/test.json';
 
     const server = await Helper.createServer(
@@ -185,29 +221,29 @@ lab.experiment('plugin', () => {
 
     const notFoundResponse = await server.inject({ method: 'GET', url: '/test.json' });
 
-    expect(notFoundResponse.statusCode).to.equal(404);
+    assert.deepStrictEqual(notFoundResponse.statusCode, 404);
 
     const okResponse = await server.inject({ method: 'GET', url: jsonRoutePath });
 
-    expect(okResponse.statusCode).to.equal(200);
+    assert.deepStrictEqual(okResponse.statusCode, 200);
   });
 
-  lab.test('repathed documentationPath url', async () => {
+  it('repathed documentationPath url', async () => {
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/testdoc' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('repathed assets url', async () => {
+  it('repathed assets url', async () => {
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/testdoc' });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
     const assets = Helper.getAssetsPaths(response.result);
 
     assets.forEach((asset) => {
-      expect(asset).to.contain(swaggerOptions.swaggerUIPath);
+      assert.ok(__includes(asset, swaggerOptions.swaggerUIPath));
     });
 
     const responses = await Promise.all(
@@ -217,11 +253,11 @@ lab.experiment('plugin', () => {
     );
 
     responses.forEach((assetResponse) => {
-      expect(assetResponse.statusCode).to.equal(200);
+      assert.deepStrictEqual(assetResponse.statusCode, 200);
     });
   });
 
-  lab.test('repathed assets url and reoutes path', async () => {
+  it('repathed assets url and reoutes path', async () => {
     const routesBasePath = '/testRoute/';
     const server = await Helper.createServer(
       {
@@ -232,12 +268,12 @@ lab.experiment('plugin', () => {
     );
     const response = await server.inject({ method: 'GET', url: '/testdoc' });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
     const assets = Helper.getAssetsPaths(response.result);
 
     assets.forEach((asset) => {
-      expect(asset).to.contain(swaggerOptions.swaggerUIPath);
+      assert.ok(__includes(asset, swaggerOptions.swaggerUIPath));
     });
 
     const notFoundResponses = await Promise.all(
@@ -247,7 +283,7 @@ lab.experiment('plugin', () => {
     );
 
     notFoundResponses.forEach((assetResponse) => {
-      expect(assetResponse.statusCode).to.equal(404);
+      assert.deepStrictEqual(assetResponse.statusCode, 404);
     });
 
     const okResponses = await Promise.all(
@@ -257,21 +293,21 @@ lab.experiment('plugin', () => {
     );
 
     okResponses.forEach((assetResponse) => {
-      expect(assetResponse.statusCode).to.equal(200);
+      assert.deepStrictEqual(assetResponse.statusCode, 200);
     });
   });
 
-  lab.test('disable documentation path', async () => {
+  it('disable documentation path', async () => {
     const swaggerOptions = {
       documentationPage: false
     };
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/documentation' });
-    expect(response.statusCode).to.equal(404);
+    assert.deepStrictEqual(response.statusCode, 404);
   });
 
-  lab.test('disable swagger UI', async () => {
+  it('disable swagger UI', async () => {
     const swaggerOptions = {
       swaggerUI: false,
       documentationPage: false
@@ -279,10 +315,10 @@ lab.experiment('plugin', () => {
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swaggerui/swagger-ui.js' });
-    expect(response.statusCode).to.equal(404);
+    assert.deepStrictEqual(response.statusCode, 404);
   });
 
-  lab.test('disable swagger UI overridden by documentationPage', async () => {
+  it('disable swagger UI overridden by documentationPage', async () => {
     const swaggerOptions = {
       swaggerUI: false,
       documentationPage: true
@@ -290,10 +326,10 @@ lab.experiment('plugin', () => {
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swaggerui/swagger-ui.js' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('should take the plugin route prefix into account when rendering the UI', async () => {
+  it('should take the plugin route prefix into account when rendering the UI', async () => {
     const server = new Hapi.Server();
     await server.register([
       Inert,
@@ -309,12 +345,14 @@ lab.experiment('plugin', () => {
     server.route(routes);
     await server.start();
     const response = await server.inject({ method: 'GET', url: '/implicitPrefix/documentation' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     const htmlContent = response.result;
-    expect(htmlContent).to.contain(['/implicitPrefix/swaggerui/swagger-ui-bundle.js', '/implicitPrefix/swagger.json']);
+    assert.ok(
+      __includes(htmlContent, ['/implicitPrefix/swaggerui/swagger-ui-bundle.js', '/implicitPrefix/swagger.json'])
+    );
   });
 
-  lab.test('enable cors settings, should return headers with origin settings', async () => {
+  it('enable cors settings, should return headers with origin settings', async () => {
     const swaggerOptions = {
       cors: true
     };
@@ -322,62 +360,62 @@ lab.experiment('plugin', () => {
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     // https://stackoverflow.com/questions/25329405/why-isnt-vary-origin-response-set-on-a-cors-miss
-    expect(response.headers.vary).to.equal('origin');
-    expect(response.result.paths['/store/'].post.parameters.length).to.equal(1);
-    expect(response.result.paths['/store/'].post.parameters[0].name).to.equal('body');
+    assert.deepStrictEqual(response.headers.vary, 'origin');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters.length, 1);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters[0].name, 'body');
   });
 
-  lab.test('disable cors settings, should return headers without origin settings', async () => {
+  it('disable cors settings, should return headers without origin settings', async () => {
     const swaggerOptions = {
       cors: false
     };
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.headers.vary).to.not.equal('origin');
-    expect(response.result.paths['/store/'].post.parameters.length).to.equal(1);
-    expect(response.result.paths['/store/'].post.parameters[0].name).to.equal('body');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.notDeepStrictEqual(response.headers.vary, 'origin');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters.length, 1);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters[0].name, 'body');
   });
 
-  lab.test('default cors settings as false, should return headers without origin settings', async () => {
+  it('default cors settings as false, should return headers without origin settings', async () => {
     const swaggerOptions = {};
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.headers.vary).to.not.equal('origin,accept-encoding');
-    expect(response.result.paths['/store/'].post.parameters.length).to.equal(1);
-    expect(response.result.paths['/store/'].post.parameters[0].name).to.equal('body');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.notDeepStrictEqual(response.headers.vary, 'origin,accept-encoding');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters.length, 1);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters[0].name, 'body');
   });
 
-  lab.test('payloadType = form global', async () => {
+  it('payloadType = form global', async () => {
     const swaggerOptions = {
       payloadType: 'json'
     };
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/store/'].post.parameters.length).to.equal(1);
-    expect(response.result.paths['/store/'].post.parameters[0].name).to.equal('body');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters.length, 1);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters[0].name, 'body');
   });
 
-  lab.test('payloadType = json global', async () => {
+  it('payloadType = json global', async () => {
     const swaggerOptions = {
       payloadType: 'form'
     };
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/store/'].post.parameters.length).to.equal(4);
-    expect(response.result.paths['/store/'].post.parameters[0].name).to.equal('a');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters.length, 4);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters[0].name, 'a');
   });
 
-  lab.test('pathPrefixSize global', async () => {
+  it('pathPrefixSize global', async () => {
     const swaggerOptions = {
       pathPrefixSize: 2
     };
@@ -395,62 +433,62 @@ lab.experiment('plugin', () => {
 
     const server = await Helper.createServer(swaggerOptions, prefixRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/foo/bar/extra'].get.tags[0]).to.equal('foo/bar');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/foo/bar/extra'].get.tags[0], 'foo/bar');
   });
 
-  lab.test('expanded none', async () => {
+  it('expanded none', async () => {
     // TODO find a way to test impact of property change
     const server = await Helper.createServer({ expanded: 'none' });
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('expanded list', async () => {
+  it('expanded list', async () => {
     const server = await Helper.createServer({ expanded: 'list' });
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('expanded full', async () => {
+  it('expanded full', async () => {
     const server = await Helper.createServer({ expanded: 'full' }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('pass through of tags querystring', async () => {
+  it('pass through of tags querystring', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/documentation?tags=reduced' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.indexOf('swagger.json?tags=reduced') > -1).to.equal(true);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.indexOf('swagger.json?tags=reduced') > -1, true);
   });
 
-  lab.test('reset to defaults after removing tags querystring', async () => {
+  it('reset to defaults after removing tags querystring', async () => {
     const server = await Helper.createServer({}, routes);
 
     const response1 = await server.inject({ method: 'GET', url: '/documentation?tags=foo' });
-    expect(response1.statusCode).to.equal(200);
-    expect(response1.result).to.include('"/swagger.json?tags=foo"');
+    assert.deepStrictEqual(response1.statusCode, 200);
+    assert.ok(__includes(response1.result, '"/swagger.json?tags=foo"'));
 
     const response2 = await server.inject({ method: 'GET', url: '/documentation' });
-    expect(response2.statusCode).to.equal(200);
-    expect(response2.result).not.to.include('"/swagger.json?tags=foo"');
-    expect(response2.result).to.include('"/swagger.json"');
+    assert.deepStrictEqual(response2.statusCode, 200);
+    assert.ok(!__includes(response2.result, '"/swagger.json?tags=foo"'));
+    assert.ok(__includes(response2.result, '"/swagger.json"'));
   });
 
-  lab.test('tryItOutEnabled true', async () => {
+  it('tryItOutEnabled true', async () => {
     const server = await Helper.createServer({ tryItOutEnabled: true });
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('tryItOutEnabled false', async () => {
+  it('tryItOutEnabled false', async () => {
     const server = await Helper.createServer({ tryItOutEnabled: false });
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('test route x-meta appears in swagger', async () => {
+  it('test route x-meta appears in swagger', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -474,7 +512,7 @@ lab.experiment('plugin', () => {
     ];
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.result.paths['/test/'].post['x-meta']).to.equal({
+    assert.deepStrictEqual(response.result.paths['/test/'].post['x-meta'], {
       test1: true,
       test2: 'test',
       test3: {
@@ -483,7 +521,7 @@ lab.experiment('plugin', () => {
     });
   });
 
-  lab.test('test arbitrary vendor extensions (x-*) appears in swagger', async () => {
+  it('test arbitrary vendor extensions (x-*) appears in swagger', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -505,14 +543,14 @@ lab.experiment('plugin', () => {
     ];
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.result.paths['/test/'].post['x-code-samples']).to.equal({
+    assert.deepStrictEqual(response.result.paths['/test/'].post['x-code-samples'], {
       lang: 'JavaScript',
       source: 'console.log("Hello World");'
     });
-    expect(response.result.paths['/test/'].post['x-custom-string']).to.equal('some string');
+    assert.deepStrictEqual(response.result.paths['/test/'].post['x-custom-string'], 'some string');
   });
 
-  lab.test('test {disableDropdown: true} in swagger', async () => {
+  it('test {disableDropdown: true} in swagger', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -531,7 +569,7 @@ lab.experiment('plugin', () => {
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.result.definitions).to.equal({
+    assert.deepStrictEqual(response.result.definitions, {
       Model1: {
         type: 'object',
         properties: {
@@ -547,7 +585,7 @@ lab.experiment('plugin', () => {
   });
 });
 
-lab.experiment('multiple plugins', () => {
+describe('multiple plugins', () => {
   const routes = [
     {
       method: 'POST',
@@ -583,7 +621,7 @@ lab.experiment('multiple plugins', () => {
     }
   ];
 
-  lab.test('multiple plugins can co-exist', async () => {
+  it('multiple plugins can co-exist', async () => {
     const swaggerOptions1 = {
       routeTag: 'store-api',
       info: {
@@ -599,39 +637,39 @@ lab.experiment('multiple plugins', () => {
     const server = await Helper.createServerMultiple(swaggerOptions1, swaggerOptions2, routes);
 
     const response1 = await server.inject({ method: 'GET', url: '/store-api/swagger.json' });
-    expect(response1.statusCode).to.equal(200);
+    assert.deepStrictEqual(response1.statusCode, 200);
     const isValid1 = await Validate.test(response1.result);
-    expect(isValid1).to.be.true();
-    expect(response1.result.info.description).to.equal('This is the store API docs');
-    expect(response1.result.paths['/store/'].post.operationId).to.equal('postStore');
+    assert.strictEqual(isValid1, true);
+    assert.deepStrictEqual(response1.result.info.description, 'This is the store API docs');
+    assert.deepStrictEqual(response1.result.paths['/store/'].post.operationId, 'postStore');
 
     const response2 = await server.inject({ method: 'GET', url: '/shop-api/swagger.json' });
-    expect(response2.statusCode).to.equal(200);
+    assert.deepStrictEqual(response2.statusCode, 200);
     const isValid2 = await Validate.test(response2.result);
-    expect(isValid2).to.be.true();
-    expect(response2.result.info.description).to.equal('This is the shop API docs');
-    expect(response2.result.paths['/shop/'].post.operationId).to.equal('postShop');
+    assert.strictEqual(isValid2, true);
+    assert.deepStrictEqual(response2.result.info.description, 'This is the shop API docs');
+    assert.deepStrictEqual(response2.result.paths['/shop/'].post.operationId, 'postShop');
 
     const document1 = await server.inject({ method: 'GET', url: '/store-api/documentation' });
-    expect(document1.statusCode).to.equal(200);
-    expect(document1.result).to.include('/store-api/');
-    expect(document1.result).not.to.include('/shop-api/');
+    assert.deepStrictEqual(document1.statusCode, 200);
+    assert.ok(__includes(document1.result, '/store-api/'));
+    assert.ok(!__includes(document1.result, '/shop-api/'));
 
     const document2 = await server.inject({ method: 'GET', url: '/shop-api/documentation' });
-    expect(document2.statusCode).to.equal(200);
-    expect(document2.result).to.include('/shop-api/');
-    expect(document2.result).not.to.include('/store-api/');
+    assert.deepStrictEqual(document2.statusCode, 200);
+    assert.ok(__includes(document2.result, '/shop-api/'));
+    assert.ok(!__includes(document2.result, '/store-api/'));
   });
 
-  lab.test('start server with custom Swagger json file', async () => {
+  it('start server with custom Swagger json file', async () => {
     const swaggerOptions = {
       customSwaggerFile: require('../../examples/assets/swagger.json')
     };
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/live'].get.parameters).to.equal(undefined);
-    expect(response.result.paths['/live'].get.responses[200].description).to.equal('Successful');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/live'].get.parameters, undefined);
+    assert.deepStrictEqual(response.result.paths['/live'].get.responses[200].description, 'Successful');
   });
 });

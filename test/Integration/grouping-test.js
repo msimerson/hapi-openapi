@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
-const Lab = require('@hapi/lab');
 const HapiOpenapi = require('../../lib/index.js');
 const Validate = require('../../lib/validate.js');
-
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
 
 const testPlugin = {
   name: 'grouping1',
@@ -40,8 +38,8 @@ const swaggerOptions = {
   }
 };
 
-lab.experiment('default grouping', () => {
-  lab.test('group by path', async () => {
+describe('default grouping', () => {
+  it('group by path', async () => {
     const server = await new Hapi.Server({});
     await server.register([
       Inert,
@@ -56,8 +54,8 @@ lab.experiment('default grouping', () => {
     await server.start();
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/grouping1']).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/grouping1'], {
       get: {
         tags: ['grouping1'],
         responses: {
@@ -73,11 +71,11 @@ lab.experiment('default grouping', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.experiment('tag grouping', () => {
-    lab.test('group by tags', async () => {
+  describe('tag grouping', () => {
+    it('group by tags', async () => {
       const server = await new Hapi.Server({});
       swaggerOptions.grouping = 'tags';
       await server.register([
@@ -90,8 +88,8 @@ lab.experiment('default grouping', () => {
       ]);
       await server.start();
       const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-      expect(response.statusCode).to.equal(200);
-      expect(response.result.paths['/grouping1']).to.equal({
+      assert.deepStrictEqual(response.statusCode, 200);
+      assert.deepStrictEqual(response.result.paths['/grouping1'], {
         get: {
           tags: ['hello group', 'another group'],
           responses: {
@@ -107,12 +105,12 @@ lab.experiment('default grouping', () => {
         }
       });
       const isValid = await Validate.test(response.result);
-      expect(isValid).to.be.true();
+      assert.strictEqual(isValid, true);
     });
   });
 
-  lab.experiment('tag grouping with tagsGroupingFilter', () => {
-    lab.test('group by filtered tags', async () => {
+  describe('tag grouping with tagsGroupingFilter', () => {
+    it('group by filtered tags', async () => {
       const server = await new Hapi.Server({});
       swaggerOptions.grouping = 'tags';
       swaggerOptions.tagsGroupingFilter = (tag) => tag === 'hello group';
@@ -129,8 +127,8 @@ lab.experiment('default grouping', () => {
       await server.start();
       const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-      expect(response.statusCode).to.equal(200);
-      expect(response.result.paths['/grouping1']).to.equal({
+      assert.deepStrictEqual(response.statusCode, 200);
+      assert.deepStrictEqual(response.result.paths['/grouping1'], {
         get: {
           tags: ['hello group'],
           responses: {
@@ -146,7 +144,7 @@ lab.experiment('default grouping', () => {
         }
       });
       const isValid = await Validate.test(response.result);
-      expect(isValid).to.be.true();
+      assert.strictEqual(isValid, true);
     });
   });
 });

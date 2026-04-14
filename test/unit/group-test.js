@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Group = require('../../lib/group.js');
 const Helper = require('../helper.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('group', () => {
+describe('group', () => {
   const routes = [
     {
       method: 'GET',
@@ -42,53 +40,53 @@ lab.experiment('group', () => {
     }
   ];
 
-  lab.test('test groups tagging of paths', async () => {
+  it('test groups tagging of paths', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/actors'].get.tags[0]).to.equal('actors');
-    expect(response.result.paths['/movies'].get.tags[0]).to.equal('movies');
-    expect(response.result.paths['/movies/movie'].get.tags[0]).to.equal('movies');
-    expect(response.result.paths['/movies/movie/actor'].get.tags[0]).to.equal('movies');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/actors'].get.tags[0], 'actors');
+    assert.deepStrictEqual(response.result.paths['/movies'].get.tags[0], 'movies');
+    assert.deepStrictEqual(response.result.paths['/movies/movie'].get.tags[0], 'movies');
+    assert.deepStrictEqual(response.result.paths['/movies/movie/actor'].get.tags[0], 'movies');
   });
 
-  lab.test('getNameByPath 1', () => {
+  it('getNameByPath 1', () => {
     const name = Group.getNameByPath(1, '/', '/lala/foo');
-    expect(name).to.equal('lala');
+    assert.deepStrictEqual(name, 'lala');
   });
 
-  lab.test('getNameByPath 2', () => {
+  it('getNameByPath 2', () => {
     const name = Group.getNameByPath(1, '/', '/');
-    expect(name).to.equal('');
+    assert.deepStrictEqual(name, '');
   });
 
-  lab.test('getNameByPath 3', () => {
+  it('getNameByPath 3', () => {
     const name = Group.getNameByPath(2, '/', '/lala/foo');
-    expect(name).to.equal('lala/foo');
+    assert.deepStrictEqual(name, 'lala/foo');
   });
 
-  lab.test('getNameByPath 4', () => {
+  it('getNameByPath 4', () => {
     const name = Group.getNameByPath(2, '/', '/lala/foo/blah');
-    expect(name).to.equal('lala/foo');
+    assert.deepStrictEqual(name, 'lala/foo');
   });
 
-  lab.test('getNameByPath 5', () => {
+  it('getNameByPath 5', () => {
     const name = Group.getNameByPath(2, '/', '/lala');
-    expect(name).to.equal('lala');
+    assert.deepStrictEqual(name, 'lala');
   });
 
-  lab.test('getNameByPath with basePath = /v3/', () => {
+  it('getNameByPath with basePath = /v3/', () => {
     const name = Group.getNameByPath(2, '/v3/', '/v3/lala');
-    expect(name).to.equal('lala');
+    assert.deepStrictEqual(name, 'lala');
   });
 
-  lab.test('getNameByPath with basePath = /v3/', () => {
+  it('getNameByPath with basePath = /v3/', () => {
     const name = Group.getNameByPath(2, '/v3/', '/v3/lala/foo');
-    expect(name).to.equal('lala');
+    assert.deepStrictEqual(name, 'lala');
   });
 
-  lab.test('getNameByPath with basePath = /v3', () => {
+  it('getNameByPath with basePath = /v3', () => {
     const name = Group.getNameByPath(2, '/v3', '/v3/lala/foo');
-    expect(name).to.equal('lala');
+    assert.deepStrictEqual(name, 'lala');
   });
 });

@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('security (OpenAPI)', () => {
+describe('security (OpenAPI)', () => {
   // example from https://petstore3.swagger.io/api/v3/openapi.json
   const swaggerOptions = {
     OAS: 'v3.0',
@@ -80,7 +78,7 @@ lab.experiment('security (OpenAPI)', () => {
     }
   ];
 
-  lab.test('passes through securityDefinitions', async () => {
+  it('passes through securityDefinitions', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/openapi.json',
@@ -91,12 +89,12 @@ lab.experiment('security (OpenAPI)', () => {
 
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.components.securitySchemes).to.equal(swaggerOptions.securityDefinitions);
+    assert.deepStrictEqual(response.result.components.securitySchemes, swaggerOptions.securityDefinitions);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('passes through security objects for whole api', async () => {
+  it('passes through security objects for whole api', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/openapi.json'
@@ -105,12 +103,12 @@ lab.experiment('security (OpenAPI)', () => {
     // plugin routes should be not be affected by auth on API
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.security).to.equal(swaggerOptions.security);
+    assert.deepStrictEqual(response.result.security, swaggerOptions.security);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('passes through security objects on routes', async () => {
+  it('passes through security objects on routes', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/openapi.json'
@@ -119,21 +117,21 @@ lab.experiment('security (OpenAPI)', () => {
     // plugin routes should be not be affected by auth on API
     const server = await Helper.createServer(swaggerOptions, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.paths['/bookmarks/1/'].post.security).to.equal([
+    assert.deepStrictEqual(response.result.paths['/bookmarks/1/'].post.security, [
       {
         api_key: []
       }
     ]);
-    expect(response.result.paths['/bookmarks/2/'].post.security).to.equal([
+    assert.deepStrictEqual(response.result.paths['/bookmarks/2/'].post.security, [
       {
         petstore_auth: ['write:pets', 'read:pets']
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  // lab.test('passes through x-keyPrefix', async() => {
+  // it('passes through x-keyPrefix', async() => {
 
   //     const prefixBearerOptions = {
   //         debug: true,
@@ -156,10 +154,10 @@ lab.experiment('security (OpenAPI)', () => {
   //     // plugin routes should be not be affected by auth on API
   //     const server = await Helper.createServer(prefixBearerOptions, routes);
   //     const response = await server.inject(requestOptions);
-  //     expect(JSON.parse(response.result).keyPrefix).to.equal('Bearer ');
+  //     assert.deepStrictEqual(JSON.parse(response.result).keyPrefix, 'Bearer ');
   // });
 
-  // lab.test('no keyPrefix', async() => {
+  // it('no keyPrefix', async() => {
 
   //     const prefixOauth2Options = {
   //         debug: true,
@@ -185,7 +183,7 @@ lab.experiment('security (OpenAPI)', () => {
   //     // plugin routes should be not be affected by auth on API
   //     const server = await Helper.createServer(prefixOauth2Options, routes);
   //     const response = await server.inject(requestOptions);
-  //     expect(JSON.parse(response.result).keyPrefix).to.equal(undefined);
+  //     assert.deepStrictEqual(JSON.parse(response.result).keyPrefix, undefined);
 
   // });
 });

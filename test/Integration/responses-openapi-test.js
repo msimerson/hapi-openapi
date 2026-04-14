@@ -1,16 +1,15 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Defaults = require('../../lib/defaults.js');
 const Responses = require('../../lib/responses.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
 const responses = new Responses(Defaults);
 
-lab.experiment('responses', () => {
+describe('responses', () => {
   const headers = {
     'X-Rate-Limit-Limit': {
       description: 'The number of allowed requests in the current period',
@@ -86,7 +85,7 @@ lab.experiment('responses', () => {
     }
   };
 
-  lab.test('using hapi response.schema', async () => {
+  it('using hapi response.schema', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -109,12 +108,12 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses).to.exist();
+    assert.ok(response.result.paths['/store/'].post.responses != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('conditional variables produce `required = true`, not `required = [...]`', async () => {
+  it('conditional variables produce `required = true`, not `required = [...]`', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -135,12 +134,12 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.parameters[0].required).to.equal(true);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters[0].required, true);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.schema with child objects', async () => {
+  it('using hapi response.schema with child objects', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -163,13 +162,13 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.components.schemas.List).to.exist();
-    expect(response.result.components.schemas.Sum).to.exist();
+    assert.ok(response.result.components.schemas.List != null);
+    assert.ok(response.result.components.schemas.Sum != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.status', async () => {
+  it('using hapi response.status', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -196,16 +195,19 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses[200]).to.exist();
-    expect(response.result.paths['/store/'].post.responses[204].description).to.equal('No Content');
-    expect(response.result.paths['/store/'].post.responses[400].description).to.equal('Bad Request');
-    expect(response.result.paths['/store/'].post.responses[400].headers).to.equal(headers);
-    expect(response.result.paths['/store/'].post.responses[400].content['application/json'].example).to.equal(examples);
+    assert.ok(response.result.paths['/store/'].post.responses[200] != null);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[204].description, 'No Content');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].description, 'Bad Request');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].headers, headers);
+    assert.deepStrictEqual(
+      response.result.paths['/store/'].post.responses[400].content['application/json'].example,
+      examples
+    );
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.status without 200', async () => {
+  it('using hapi response.status without 200', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -230,15 +232,18 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses[200]).to.equal(undefined);
-    expect(response.result.paths['/store/'].post.responses[400].description).to.equal('Bad Request');
-    expect(response.result.paths['/store/'].post.responses[400].headers).to.equal(headers);
-    expect(response.result.paths['/store/'].post.responses[400].content['application/json'].example).to.equal(examples);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[200], undefined);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].description, 'Bad Request');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].headers, headers);
+    assert.deepStrictEqual(
+      response.result.paths['/store/'].post.responses[400].content['application/json'].example,
+      examples
+    );
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using route base plugin override - object', async () => {
+  it('using route base plugin override - object', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -260,14 +265,14 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses[200].content['application/json'].schema).to.exist();
-    expect(response.result.paths['/store/'].post.responses[400].description).to.equal('Bad Request');
-    expect(response.result.paths['/store/'].post.responses[400].headers).to.equal(headers);
+    assert.ok(response.result.paths['/store/'].post.responses[200].content['application/json'].schema != null);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].description, 'Bad Request');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].headers, headers);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using route merging response and plugin override', async () => {
+  it('using route merging response and plugin override', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -292,17 +297,17 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses[200].content['application/json'].schema).to.exist();
-    expect(response.result.paths['/store/'].post.responses[200].description).to.equal('Success its a 200');
-    expect(response.result.paths['/store/'].post.responses[200]['x-meta']).to.equal('x-meta test data');
-    expect(response.result.paths['/store/'].post.responses[200].content['application/json'].schema).to.equal({
+    assert.ok(response.result.paths['/store/'].post.responses[200].content['application/json'].schema != null);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[200].description, 'Success its a 200');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[200]['x-meta'], 'x-meta test data');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[200].content['application/json'].schema, {
       $ref: '#/components/schemas/Result'
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('test a default response description is provided when no description is given', async () => {
+  it('test a default response description is provided when no description is given', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -323,12 +328,12 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses[200].description).to.equal('Successful');
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[200].description, 'Successful');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using route base plugin override - array', async () => {
+  it('using route base plugin override - array', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -371,7 +376,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses[200]).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[200], {
       description: 'Success',
       content: {
         'application/json': {
@@ -381,13 +386,13 @@ lab.experiment('responses', () => {
         }
       }
     });
-    expect(response.result.components.schemas.HTTP200).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.HTTP200, {
       type: 'array',
       items: {
         $ref: '#/components/schemas/HTTP200Items'
       }
     });
-    expect(response.result.components.schemas.HTTP200Items).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.HTTP200Items, {
       type: 'object',
       properties: {
         equals: {
@@ -395,13 +400,13 @@ lab.experiment('responses', () => {
         }
       }
     });
-    expect(response.result.paths['/store/'].post.responses[400].description).to.equal('Bad Request');
-    expect(response.result.components.schemas.HTTP400).exists();
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses[400].description, 'Bad Request');
+    assert.ok(response.result.components.schemas.HTTP400 != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('failback to 200', async () => {
+  it('failback to 200', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -418,7 +423,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses, {
       default: {
         content: {
           'application/json': {
@@ -431,10 +436,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('when default schema provided an no responses provided', async () => {
+  it('when default schema provided an no responses provided', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -454,7 +459,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths['/store/'].post.responses).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store/'].post.responses, {
       200: {
         content: {
           'application/json': {
@@ -467,15 +472,15 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('No ownProperty', () => {
+  it('No ownProperty', () => {
     const objA = Helper.objWithNoOwnProperty();
     const objB = Helper.objWithNoOwnProperty();
     const objC = Helper.objWithNoOwnProperty();
 
-    expect(responses.build({}, {}, {}, {})).to.equal({
+    assert.deepStrictEqual(responses.build({}, {}, {}, {}), {
       default: {
         schema: {
           type: 'string'
@@ -483,7 +488,7 @@ lab.experiment('responses', () => {
         description: 'Successful'
       }
     });
-    expect(responses.build(objA, objB, objC, {})).to.equal({
+    assert.deepStrictEqual(responses.build(objA, objB, objC, {}), {
       default: {
         schema: {
           type: 'string'
@@ -493,7 +498,7 @@ lab.experiment('responses', () => {
     });
 
     const objD = { 200: { description: 'Successful' } };
-    expect(responses.build(objD, objB, objC, {})).to.equal({
+    assert.deepStrictEqual(responses.build(objD, objB, objC, {}), {
       200: {
         schema: {
           type: 'string'
@@ -503,7 +508,7 @@ lab.experiment('responses', () => {
     });
   });
 
-  lab.test('with same path but different method', async () => {
+  it('with same path but different method', async () => {
     const routes = [
       {
         method: 'POST',
@@ -535,9 +540,9 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.components.schemas.Model1).to.exist();
-    expect(response.result.components.schemas.Model2).to.exist();
-    expect(response.result.components.schemas).to.equal({
+    assert.ok(response.result.components.schemas.Model1 != null);
+    assert.ok(response.result.components.schemas.Model2 != null);
+    assert.deepStrictEqual(response.result.components.schemas, {
       Model1: {
         type: 'object',
         properties: {
@@ -556,10 +561,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('with deep labels', async () => {
+  it('with deep labels', async () => {
     const routes = [
       {
         method: 'POST',
@@ -578,12 +583,12 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.components.schemas.labelA).to.exist();
+    assert.ok(response.result.components.schemas.labelA != null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('array with required #249', async () => {
+  it('array with required #249', async () => {
     const dataPointSchema = Joi.object()
       .keys({
         date: Joi.date().required(),
@@ -608,8 +613,8 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.components.schemas.datapoint).to.exist();
-    expect(response.result.components.schemas).to.equal({
+    assert.ok(response.result.components.schemas.datapoint != null);
+    assert.deepStrictEqual(response.result.components.schemas, {
       datapoint: {
         properties: {
           date: {
@@ -631,10 +636,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('replace example with x-example for response', async () => {
+  it('replace example with x-example for response', async () => {
     const dataPointSchema = Joi.object()
       .keys({
         date: Joi.date().required().example('2016-08-26'),
@@ -659,8 +664,8 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.components.schemas.datapoint).to.exist();
-    expect(response.result.components.schemas).to.equal({
+    assert.ok(response.result.components.schemas.datapoint != null);
+    assert.deepStrictEqual(response.result.components.schemas, {
       datapoint: {
         properties: {
           date: {
@@ -684,10 +689,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.schema and plugin ', async () => {
+  it('using hapi response.schema and plugin ', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -709,7 +714,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths).to.equal({
+    assert.deepStrictEqual(response.result.paths, {
       '/store/': {
         post: {
           operationId: 'postStore',
@@ -730,10 +735,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.schema and plugin mismatch', async () => {
+  it('using hapi response.schema and plugin mismatch', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -755,7 +760,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths).to.equal({
+    assert.deepStrictEqual(response.result.paths, {
       '/store/': {
         post: {
           operationId: 'postStore',
@@ -779,10 +784,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.schema and plugin mismatch', async () => {
+  it('using hapi response.schema and plugin mismatch', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -805,7 +810,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths).to.equal({
+    assert.deepStrictEqual(response.result.paths, {
       '/store/': {
         post: {
           operationId: 'postStore',
@@ -826,10 +831,10 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('using hapi response.schema and plugin mixed results', async () => {
+  it('using hapi response.schema and plugin mixed results', async () => {
     const routes = {
       method: 'POST',
       path: '/store/',
@@ -864,7 +869,7 @@ lab.experiment('responses', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ url: '/openapi.json' });
-    expect(response.result.paths).to.equal({
+    assert.deepStrictEqual(response.result.paths, {
       '/store/': {
         post: {
           operationId: 'postStore',
@@ -918,6 +923,6 @@ lab.experiment('responses', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

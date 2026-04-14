@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('documentation-route-tags', () => {
+describe('documentation-route-tags', () => {
   const routes = [
     {
       method: 'GET',
@@ -23,37 +21,37 @@ lab.experiment('documentation-route-tags', () => {
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
     const table = server.table();
-    table.forEach(route => {
+    table.forEach((route) => {
       switch (route.path) {
         case '/test':
           break;
         case '/swagger.json':
         case '/swaggerui/extend.js':
         case '/swaggerui/{path*}':
-          expect(route.settings.tags).to.equal(tagName);
+          assert.deepStrictEqual(route.settings.tags, tagName);
           break;
         default:
           break;
       }
     });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   };
 
-  lab.test('no documentationRouteTags property passed', async () => {
+  it('no documentationRouteTags property passed', async () => {
     await testServer({}, []);
   });
 
-  lab.test('documentationRouteTags property passed', async () => {
+  it('documentationRouteTags property passed', async () => {
     const swaggerOptions = {
       documentationRouteTags: ['no-logging']
     };
     await testServer(swaggerOptions, swaggerOptions.documentationRouteTags);
   });
 
-  lab.test('multiple documentationRouteTags passed', async () => {
+  it('multiple documentationRouteTags passed', async () => {
     const swaggerOptions = {
       documentationRouteTags: ['hello', 'world']
     };

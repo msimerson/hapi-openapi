@@ -1,14 +1,12 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
 const Hoek = require('@hapi/hoek');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('path', () => {
+describe('path', () => {
   const routes = {
     method: 'POST',
     path: '/test',
@@ -35,28 +33,28 @@ lab.experiment('path', () => {
     }
   };
 
-  lab.test('summary and description', async () => {
+  it('summary and description', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.summary).to.equal('Add sum');
-    expect(response.result.paths['/test'].post.description).to.equal('Adds a sum to the data store');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.summary, 'Add sum');
+    assert.deepStrictEqual(response.result.paths['/test'].post.description, 'Adds a sum to the data store');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('description as an array', async () => {
+  it('description as an array', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.notes = ['note one', 'note two'];
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.description).to.equal('note one<br/><br/>note two');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.description, 'note one<br/><br/>note two');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('route settting of consumes produces', async () => {
+  it('route settting of consumes produces', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -67,14 +65,14 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['application/x-www-form-urlencoded']);
-    expect(response.result.paths['/test'].post.produces).to.equal(['application/json', 'application/xml']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['application/x-www-form-urlencoded']);
+    assert.deepStrictEqual(response.result.paths['/test'].post.produces, ['application/json', 'application/xml']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('override plug-in settting of consumes produces', async () => {
+  it('override plug-in settting of consumes produces', async () => {
     const swaggerOptions = {
       consumes: ['application/json'],
       produces: ['application/json']
@@ -90,14 +88,14 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer(swaggerOptions, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['application/x-www-form-urlencoded']);
-    expect(response.result.paths['/test'].post.produces).to.equal(['application/json', 'application/xml']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['application/x-www-form-urlencoded']);
+    assert.deepStrictEqual(response.result.paths['/test'].post.produces, ['application/json', 'application/xml']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('auto "x-www-form-urlencoded" consumes with payloadType', async () => {
+  it('auto "x-www-form-urlencoded" consumes with payloadType', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -107,13 +105,13 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['application/x-www-form-urlencoded']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['application/x-www-form-urlencoded']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('rename a parameter', async () => {
+  it('rename a parameter', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -126,8 +124,8 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.parameters, [
       {
         type: 'string',
         name: 'a',
@@ -135,10 +133,10 @@ lab.experiment('path', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('auto "multipart/form-data" consumes with { swaggerType: "file" }', async () => {
+  it('auto "multipart/form-data" consumes with { swaggerType: "file" }', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -153,11 +151,11 @@ lab.experiment('path', () => {
     };
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['multipart/form-data']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['multipart/form-data']);
   });
 
-  lab.test('auto "multipart/form-data" do not add two', async () => {
+  it('auto "multipart/form-data" do not add two', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate = {
       payload: Joi.object({
@@ -173,11 +171,11 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['multipart/form-data']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['multipart/form-data']);
   });
 
-  lab.test('auto "application/x-www-form-urlencoded" do not add two', async () => {
+  it('auto "application/x-www-form-urlencoded" do not add two', async () => {
     const testRoutes = Hoek.clone(routes);
 
     ((testRoutes.options.validate = {
@@ -193,11 +191,11 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['application/x-www-form-urlencoded']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['application/x-www-form-urlencoded']);
   });
 
-  lab.test('a user set content-type header removes consumes', async () => {
+  it('a user set content-type header removes consumes', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       'content-type': Joi.string().valid(
@@ -209,13 +207,13 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.not.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/test'].post.consumes == null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('payloadType form', async () => {
+  it('payloadType form', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -225,13 +223,13 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.equal(['application/x-www-form-urlencoded']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.consumes, ['application/x-www-form-urlencoded']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header', async () => {
+  it('accept header', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string().required().valid('application/json', 'application/vnd.api+json')
@@ -239,13 +237,16 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.produces).to.equal(['application/json', 'application/vnd.api+json']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.produces, [
+      'application/json',
+      'application/vnd.api+json'
+    ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header - no emum', async () => {
+  it('accept header - no emum', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string().required().default('application/vnd.api+json')
@@ -254,20 +255,20 @@ lab.experiment('path', () => {
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.parameters[0]).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.parameters[0], {
       required: true,
       default: 'application/vnd.api+json',
       in: 'header',
       name: 'accept',
       type: 'string'
     });
-    expect(response.result.paths['/test'].post.produces).to.not.exist();
+    assert.ok(response.result.paths['/test'].post.produces == null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header - default first', async () => {
+  it('accept header - default first', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string()
@@ -278,13 +279,16 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.produces).to.equal(['application/vnd.api+json', 'application/json']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.produces, [
+      'application/vnd.api+json',
+      'application/json'
+    ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header acceptToProduce set to false', async () => {
+  it('accept header acceptToProduce set to false', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string()
@@ -295,8 +299,8 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({ acceptToProduce: false }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.parameters[0]).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.parameters[0], {
       enum: ['application/json', 'application/vnd.api+json'],
       required: true,
       default: 'application/vnd.api+json',
@@ -304,12 +308,12 @@ lab.experiment('path', () => {
       name: 'accept',
       type: 'string'
     });
-    expect(response.result.paths['/test'].post.produces).to.not.exist();
+    assert.ok(response.result.paths['/test'].post.produces == null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('path parameters {id}/{note?}', async () => {
+  it('path parameters {id}/{note?}', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/servers/{id}/{note?}';
     testRoutes.options.validate = {
@@ -321,11 +325,11 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}/{note}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}/{note}'] != null);
   });
 
-  lab.test('path parameters {a}/{b?} required overriden by JOI', async () => {
+  it('path parameters {a}/{b?} required overriden by JOI', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -374,8 +378,8 @@ lab.experiment('path', () => {
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/server/1/{a}/{b}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/server/1/{a}/{b}'].post.parameters, [
       {
         type: 'number',
         name: 'a',
@@ -389,7 +393,7 @@ lab.experiment('path', () => {
         required: true
       }
     ]);
-    expect(response.result.paths['/server/2/{c}/{d}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/server/2/{c}/{d}'].post.parameters, [
       {
         type: 'number',
         in: 'path',
@@ -401,7 +405,7 @@ lab.experiment('path', () => {
         name: 'd'
       }
     ]);
-    expect(response.result.paths['/server/3/{e}/{f}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/server/3/{e}/{f}'].post.parameters, [
       {
         required: true,
         type: 'number',
@@ -416,7 +420,7 @@ lab.experiment('path', () => {
     ]);
   });
 
-  lab.test('path and basePath', async () => {
+  it('path and basePath', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/v3/servers/{id}';
     testRoutes.options.validate = {
@@ -427,11 +431,11 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({ basePath: '/v3' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}'] != null);
   });
 
-  lab.test('basePath trim tailing slash', async () => {
+  it('basePath trim tailing slash', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/v3/servers/{id}';
     testRoutes.options.validate = {
@@ -442,11 +446,11 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({ basePath: '/v3/' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}'] != null);
   });
 
-  lab.test('path, basePath suppressing version fragment', async () => {
+  it('path, basePath suppressing version fragment', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/api/v3/servers/{id}';
     testRoutes.options.validate = {
@@ -468,11 +472,11 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer(options, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}'] != null);
   });
 
-  lab.test('route deprecated', async () => {
+  it('route deprecated', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -482,13 +486,13 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.deprecated).to.equal(true);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.deprecated, true);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('custom operationId for code-gen apps', async () => {
+  it('custom operationId for code-gen apps', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -498,13 +502,13 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.operationId).to.equal('add');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.operationId, 'add');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('stop boolean creating parameter', async () => {
+  it('stop boolean creating parameter', async () => {
     const testRoutes = {
       method: 'GET',
       path: '/{name}',
@@ -523,8 +527,8 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/{name}'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/{name}'].get.parameters, [
       {
         type: 'string',
         minLength: 2,
@@ -534,10 +538,10 @@ lab.experiment('path', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('stop empty objects creating parameter', async () => {
+  it('stop empty objects creating parameter', async () => {
     const testRoutes = {
       method: 'POST',
       path: '/{name}',
@@ -552,8 +556,8 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/{name}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/{name}'].post.parameters, [
       {
         in: 'body',
         name: 'body',
@@ -565,10 +569,10 @@ lab.experiment('path', () => {
 
     // Before this test returned string: "'Validation failed. /paths/{name}/post is missing path parameter(s) for {name}"
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.false();
+    assert.strictEqual(isValid, false);
   });
 
-  lab.test('stop empty formData object creating parameter', async () => {
+  it('stop empty formData object creating parameter', async () => {
     const testRoutes = {
       method: 'POST',
       path: '/',
@@ -588,14 +592,14 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/'].post.parameters).to.not.exists();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/'].post.parameters == null);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('check if the property is hidden and swagger ui is visible', async () => {
+  it('check if the property is hidden and swagger ui is visible', async () => {
     const testRoutes = {
       method: 'Get',
       path: '/todo/{id}/',
@@ -614,6 +618,6 @@ lab.experiment('path', () => {
 
     const server = await Helper.createServer({}, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 });

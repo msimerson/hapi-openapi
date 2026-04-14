@@ -1,14 +1,12 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
 const Hoek = require('@hapi/hoek');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('path (OpenAPI)', () => {
+describe('path (OpenAPI)', () => {
   const routes = {
     method: 'POST',
     path: '/test',
@@ -35,28 +33,28 @@ lab.experiment('path (OpenAPI)', () => {
     }
   };
 
-  lab.test('summary and description', async () => {
+  it('summary and description', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.summary).to.equal('Add sum');
-    expect(response.result.paths['/test'].post.description).to.equal('Adds a sum to the data store');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.summary, 'Add sum');
+    assert.deepStrictEqual(response.result.paths['/test'].post.description, 'Adds a sum to the data store');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('description as an array', async () => {
+  it('description as an array', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.notes = ['note one', 'note two'];
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.description).to.equal('note one<br/><br/>note two');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.description, 'note one<br/><br/>note two');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('route settting of consumes produces', async () => {
+  it('route settting of consumes produces', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -67,19 +65,19 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
       'application/x-www-form-urlencoded'
     ]);
-    expect(Object.keys(response.result.paths['/test'].post.responses.default.content)).to.equal([
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.responses.default.content), [
       'application/json',
       'application/xml'
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('override plug-in settting of consumes produces', async () => {
+  it('override plug-in settting of consumes produces', async () => {
     const swaggerOptions = {
       OAS: 'v3.0',
       consumes: ['application/json'],
@@ -96,19 +94,19 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer(swaggerOptions, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
       'application/x-www-form-urlencoded'
     ]);
-    expect(Object.keys(response.result.paths['/test'].post.responses.default.content)).to.equal([
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.responses.default.content), [
       'application/json',
       'application/xml'
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('auto "x-www-form-urlencoded" consumes with payloadType', async () => {
+  it('auto "x-www-form-urlencoded" consumes with payloadType', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -118,15 +116,15 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
       'application/x-www-form-urlencoded'
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('rename a parameter', async () => {
+  it('rename a parameter', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -139,8 +137,8 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.requestBody, {
       content: {
         'application/x-www-form-urlencoded': {
           schema: {
@@ -155,10 +153,10 @@ lab.experiment('path (OpenAPI)', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('auto "multipart/form-data" consumes with { swaggerType: "file" }', async () => {
+  it('auto "multipart/form-data" consumes with { swaggerType: "file" }', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -173,11 +171,13 @@ lab.experiment('path (OpenAPI)', () => {
     };
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal(['multipart/form-data']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
+      'multipart/form-data'
+    ]);
   });
 
-  lab.test('auto "multipart/form-data" do not add two', async () => {
+  it('auto "multipart/form-data" do not add two', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate = {
       payload: Joi.object({
@@ -193,11 +193,13 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal(['multipart/form-data']);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
+      'multipart/form-data'
+    ]);
   });
 
-  lab.test('auto "application/x-www-form-urlencoded" do not add two', async () => {
+  it('auto "application/x-www-form-urlencoded" do not add two', async () => {
     const testRoutes = Hoek.clone(routes);
 
     ((testRoutes.options.validate = {
@@ -213,13 +215,13 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
       'application/x-www-form-urlencoded'
     ]);
   });
 
-  lab.test('a user set content-type header removes consumes', async () => {
+  it('a user set content-type header removes consumes', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       'content-type': Joi.string().valid(
@@ -231,13 +233,13 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.consumes).to.not.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/test'].post.consumes == null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('payloadType form', async () => {
+  it('payloadType form', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -247,15 +249,15 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.requestBody.content)).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.requestBody.content), [
       'application/x-www-form-urlencoded'
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header', async () => {
+  it('accept header', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string().required().valid('application/json', 'application/vnd.api+json')
@@ -263,16 +265,16 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths['/test'].post.responses.default.content)).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths['/test'].post.responses.default.content), [
       'application/json',
       'application/vnd.api+json'
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header - no emum', async () => {
+  it('accept header - no emum', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string().required().default('application/vnd.api+json')
@@ -281,8 +283,8 @@ lab.experiment('path (OpenAPI)', () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.parameters[0]).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.parameters[0], {
       required: true,
       in: 'header',
       name: 'accept',
@@ -291,12 +293,12 @@ lab.experiment('path (OpenAPI)', () => {
         default: 'application/vnd.api+json'
       }
     });
-    expect(response.result.paths['/test'].post.produces).to.not.exist();
+    assert.ok(response.result.paths['/test'].post.produces == null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header - default first', async () => {
+  it('accept header - default first', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string()
@@ -307,8 +309,8 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.responses).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.responses, {
       default: {
         description: 'Successful',
         content: {
@@ -318,10 +320,10 @@ lab.experiment('path (OpenAPI)', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('accept header acceptToProduce set to false', async () => {
+  it('accept header acceptToProduce set to false', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.validate.headers = Joi.object({
       accept: Joi.string()
@@ -332,8 +334,8 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0', acceptToProduce: false }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.parameters[0]).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.parameters[0], {
       required: true,
       in: 'header',
       name: 'accept',
@@ -343,12 +345,12 @@ lab.experiment('path (OpenAPI)', () => {
         default: 'application/vnd.api+json'
       }
     });
-    expect(response.result.paths['/test'].post.produces).to.not.exist();
+    assert.ok(response.result.paths['/test'].post.produces == null);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('path parameters {id}/{note?}', async () => {
+  it('path parameters {id}/{note?}', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/servers/{id}/{note?}';
     testRoutes.options.validate = {
@@ -360,11 +362,11 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}/{note}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}/{note}'] != null);
   });
 
-  lab.test('path parameters {a}/{b?} required overriden by JOI', async () => {
+  it('path parameters {a}/{b?} required overriden by JOI', async () => {
     const testRoutes = [
       {
         method: 'POST',
@@ -413,8 +415,8 @@ lab.experiment('path (OpenAPI)', () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/server/1/{a}/{b}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/server/1/{a}/{b}'].post.parameters, [
       {
         name: 'a',
         in: 'path',
@@ -432,7 +434,7 @@ lab.experiment('path (OpenAPI)', () => {
         }
       }
     ]);
-    expect(response.result.paths['/server/2/{c}/{d}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/server/2/{c}/{d}'].post.parameters, [
       {
         in: 'path',
         name: 'c',
@@ -449,7 +451,7 @@ lab.experiment('path (OpenAPI)', () => {
         }
       }
     ]);
-    expect(response.result.paths['/server/3/{e}/{f}'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/server/3/{e}/{f}'].post.parameters, [
       {
         required: true,
         in: 'path',
@@ -468,7 +470,7 @@ lab.experiment('path (OpenAPI)', () => {
     ]);
   });
 
-  lab.test('path and basePath', async () => {
+  it('path and basePath', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/v3/servers/{id}';
     testRoutes.options.validate = {
@@ -479,11 +481,11 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0', basePath: '/v3' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}'] != null);
   });
 
-  lab.test('basePath trim tailing slash', async () => {
+  it('basePath trim tailing slash', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/v3/servers/{id}';
     testRoutes.options.validate = {
@@ -494,11 +496,11 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0', basePath: '/v3/' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}'] != null);
   });
 
-  lab.test('path, basePath suppressing version fragment', async () => {
+  it('path, basePath suppressing version fragment', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.path = '/api/v3/servers/{id}';
     testRoutes.options.validate = {
@@ -521,11 +523,11 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/servers/{id}']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/servers/{id}'] != null);
   });
 
-  lab.test('route deprecated', async () => {
+  it('route deprecated', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -535,13 +537,13 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.deprecated).to.equal(true);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.deprecated, true);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('custom operationId for code-gen apps', async () => {
+  it('custom operationId for code-gen apps', async () => {
     const testRoutes = Hoek.clone(routes);
     testRoutes.options.plugins = {
       '@msimerson/hapi-openapi': {
@@ -551,13 +553,13 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test'].post.operationId).to.equal('add');
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test'].post.operationId, 'add');
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('stop boolean creating parameter', async () => {
+  it('stop boolean creating parameter', async () => {
     const testRoutes = {
       method: 'GET',
       path: '/{name}',
@@ -576,8 +578,8 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/{name}'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/{name}'].get.parameters, [
       {
         name: 'name',
         in: 'path',
@@ -589,10 +591,10 @@ lab.experiment('path (OpenAPI)', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('stop empty objects creating parameter', async () => {
+  it('stop empty objects creating parameter', async () => {
     const testRoutes = {
       method: 'POST',
       path: '/{name}',
@@ -607,8 +609,8 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/{name}'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/{name}'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -620,10 +622,10 @@ lab.experiment('path (OpenAPI)', () => {
 
     // Before this test returned string: "'Validation failed. /paths/{name}/post is missing path parameter(s) for {name}"
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true(); // TODO: it should be false since the parameter schema is missing, but the validator doesn't care
+    assert.strictEqual(isValid, true); // TODO: it should be false since the parameter schema is missing, but the validator doesn't care
   });
 
-  lab.test('stop empty formData object creating parameter', async () => {
+  it('stop empty formData object creating parameter', async () => {
     const testRoutes = {
       method: 'POST',
       path: '/',
@@ -643,14 +645,14 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/'].post.parameters).to.not.exists();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.ok(response.result.paths['/'].post.parameters == null);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('check if the property is hidden and swagger ui is visible', async () => {
+  it('check if the property is hidden and swagger ui is visible', async () => {
     const testRoutes = {
       method: 'Get',
       path: '/todo/{id}/',
@@ -669,6 +671,6 @@ lab.experiment('path (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 });

@@ -1,16 +1,14 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
-
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
 
 const versions = ['v2', 'v3.0'];
 
 versions.forEach((version) => {
-  lab.experiment(`OAS ${version}`, () => {
-    lab.experiment('sort', () => {
+  describe(`OAS ${version}`, () => {
+    describe('sort', () => {
       const routes = [
         {
           method: 'POST',
@@ -120,28 +118,28 @@ versions.forEach((version) => {
 
       /* These test are no longer needed `sortPaths` is to be deprecate
 
-        lab.test('sort ordered unsorted', (done) => {
+        it('sort ordered unsorted', (done) => {
 
             Helper.createServer({ sortPaths: 'unsorted' }, routes, (err, server) => {
                 server.inject({ method: 'GET', url: '/swagger.json' }, function (response) {
 
                     //console.log(JSON.stringify(response.result.paths['/a']));
-                    expect(Object.keys(response.result.paths['/a'])).to.equal(['post', 'get', 'delete']);
+                    assert.deepStrictEqual(Object.keys(response.result.paths['/a']), ['post', 'get', 'delete']);
                     done();
                 });
             });
         });
          */
 
-      lab.test('sort ordered path-method', async () => {
+      it('sort ordered path-method', async () => {
         const server = await Helper.createServer({ OAS: version, sortPaths: 'path-method' }, routes);
         const response = await server.inject({
           method: 'GET',
           url: version === 'v2' ? '/swagger.json' : '/openapi.json'
         });
-        expect(Object.keys(response.result.paths['/a'])).to.equal(['delete', 'get', 'post']);
+        assert.deepStrictEqual(Object.keys(response.result.paths['/a']), ['delete', 'get', 'post']);
         const isValid = await Validate.test(response.result);
-        expect(isValid).to.be.true();
+        assert.strictEqual(isValid, true);
       });
     });
   });

@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('filter', () => {
+describe('filter', () => {
   const routes = [
     {
       method: 'GET',
@@ -58,78 +56,78 @@ lab.experiment('filter', () => {
     }
   ];
 
-  lab.test('filter by tags=a', async () => {
+  it('filter by tags=a', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=a' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(3);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 3);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('filter by tags=a,b,c,d', async () => {
+  it('filter by tags=a,b,c,d', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=a,b,c,d' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(5);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 5);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('filter by tags=a,c', async () => {
+  it('filter by tags=a,c', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=a,c' });
 
     //console.log(JSON.stringify(response.result.paths));
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(4);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 4);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('filter by tags=a,-b', async () => {
+  it('filter by tags=a,-b', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=a,-b' });
 
     //console.log(JSON.stringify(response.result.paths));
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(2);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 2);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('filter by tags=a,+b', async () => {
+  it('filter by tags=a,+b', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=a,%2Bb' });
     // note %2B is a '+' plus char url encoded
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(1);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 1);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('filter by tags=a,+c', async () => {
+  it('filter by tags=a,+c', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=a,%2Bc' });
 
     // note %2B is a '+' plus char url encoded
 
     //console.log(JSON.stringify(response.result.paths));
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(0);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 0);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('filter by tags=x', async () => {
+  it('filter by tags=x', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=x' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths).to.have.length(0);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.strictEqual(response.result.paths.length ?? Object.keys(response.result.paths).length, 0);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

@@ -1,12 +1,10 @@
+const { describe, it, before } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('debug', () => {
+describe('debug', () => {
   const routesEmptyObjects = {
     method: 'POST',
     path: '/test/{id}',
@@ -23,7 +21,7 @@ lab.experiment('debug', () => {
   };
 
   const logs = [];
-  lab.before(async () => {
+  before(async () => {
     const server = await Helper.createServer({ debug: true }, routesEmptyObjects);
     server.events.on('log', (event, tags) => {
       if (tags.error) {
@@ -33,20 +31,23 @@ lab.experiment('debug', () => {
     await server.inject({ method: 'GET', url: '/swagger.json' });
   });
 
-  lab.test('log - Joi.object() with child properties', () => {
-    expect(logs[0].data).to.equal(
+  it('log - Joi.object() with child properties', () => {
+    assert.deepStrictEqual(
+      logs[0].data,
       'The /test/{id} route params parameter was set, but not as a Joi.object() with child properties'
     );
-    expect(logs[1].data).to.equal(
+    assert.deepStrictEqual(
+      logs[1].data,
       'The /test/{id} route headers parameter was set, but not as a Joi.object() with child properties'
     );
-    expect(logs[2].data).to.equal(
+    assert.deepStrictEqual(
+      logs[2].data,
       'The /test/{id} route query parameter was set, but not as a Joi.object() with child properties'
     );
   });
 });
 
-lab.experiment('debug', () => {
+describe('debug', () => {
   const routesFuncObjects = {
     method: 'POST',
     path: '/test/{id}',
@@ -71,7 +72,7 @@ lab.experiment('debug', () => {
   };
 
   const logs = [];
-  lab.before(async () => {
+  before(async () => {
     const server = await Helper.createServer({ debug: true }, routesFuncObjects);
     server.events.on('log', (event, tags) => {
       if (tags.error || tags.warning) {
@@ -82,15 +83,15 @@ lab.experiment('debug', () => {
     await server.inject({ method: 'GET', url: '/swagger.json' });
   });
 
-  lab.test('log - Joi.function for a query, header or payload ', () => {
-    expect(logs[0].data).to.equal('Using a Joi.function for a query, header or payload is not supported.');
-    expect(logs[1].data).to.equal('Using a Joi.function for a params is not supported and has been removed.');
-    expect(logs[2].data).to.equal('Using a Joi.function for a query, header or payload is not supported.');
-    expect(logs[3].data).to.equal('Using a Joi.function for a query, header or payload is not supported.');
+  it('log - Joi.function for a query, header or payload ', () => {
+    assert.deepStrictEqual(logs[0].data, 'Using a Joi.function for a query, header or payload is not supported.');
+    assert.deepStrictEqual(logs[1].data, 'Using a Joi.function for a params is not supported and has been removed.');
+    assert.deepStrictEqual(logs[2].data, 'Using a Joi.function for a query, header or payload is not supported.');
+    assert.deepStrictEqual(logs[3].data, 'Using a Joi.function for a query, header or payload is not supported.');
   });
 });
 
-lab.experiment('debug', () => {
+describe('debug', () => {
   const routesFuncObjects = {
     method: 'POST',
     path: '/test/{a}/{b?}',
@@ -109,7 +110,7 @@ lab.experiment('debug', () => {
   };
 
   const logs = [];
-  lab.before(async () => {
+  before(async () => {
     const server = await Helper.createServer({ debug: true }, routesFuncObjects);
     server.events.on('log', (event, tags) => {
       if (tags.warning) {
@@ -119,14 +120,15 @@ lab.experiment('debug', () => {
     await server.inject({ method: 'GET', url: '/swagger.json' });
   });
 
-  lab.test('log - optional parameters breaking validation of JSON', () => {
-    expect(logs[0].data).to.equal(
+  it('log - optional parameters breaking validation of JSON', () => {
+    assert.deepStrictEqual(
+      logs[0].data,
       'The /test/{a}/{b?} params parameter {b} is set as optional. This will work in the UI, but is invalid in the swagger spec'
     );
   });
 });
 
-lab.test('debug page', async () => {
+it('debug page', async () => {
   const routes = {
     method: 'GET',
     path: '/test/',
@@ -138,5 +140,5 @@ lab.test('debug page', async () => {
 
   const server = await Helper.createServer({ debug: true }, routes);
   const response = await server.inject({ method: 'GET', url: '/documentation/debug' });
-  expect(response.statusCode).to.equal(200);
+  assert.deepStrictEqual(response.statusCode, 200);
 });

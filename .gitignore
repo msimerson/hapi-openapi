@@ -23,3 +23,4 @@ test/certs/server.csr
 /package-lock.json
 CLAUDE.md
 .github/copilot-instructions.md
+coverage/

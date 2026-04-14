@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('default `auth` settings', () => {
+describe('default `auth` settings', () => {
   const routes = [
     {
       method: 'GET',
@@ -40,7 +38,7 @@ lab.experiment('default `auth` settings', () => {
     }
   ];
 
-  lab.test('get documentation page should not be restricted', async () => {
+  it('get documentation page should not be restricted', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/documentation'
@@ -48,10 +46,10 @@ lab.experiment('default `auth` settings', () => {
 
     const server = await Helper.createJWTAuthServer({}, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('get documentation page should be restricted 401', async () => {
+  it('get documentation page should be restricted 401', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/documentation'
@@ -59,11 +57,11 @@ lab.experiment('default `auth` settings', () => {
 
     const server = await Helper.createJWTAuthServer({ auth: undefined }, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(401);
+    assert.deepStrictEqual(response.statusCode, 401);
   });
 });
 
-lab.experiment('authentication', () => {
+describe('authentication', () => {
   // route using bearer token auth
   const routes = {
     method: 'POST',
@@ -94,24 +92,24 @@ lab.experiment('authentication', () => {
     }
   };
 
-  lab.test('get plug-in interface with bearer token', async () => {
+  it('get plug-in interface with bearer token', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/swagger.json',
       headers: {
-        authorization: 'Bearer 12345'
+        authorization: `Bearer ${Helper.validBearerToken}`
       }
     };
 
     const server = await Helper.createAuthServer({}, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('get plug-in interface without bearer token', async () => {
+  it('get plug-in interface without bearer token', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/swagger.json'
@@ -120,12 +118,12 @@ lab.experiment('authentication', () => {
     // plugin routes should be not be affected by auth on API
     const server = await Helper.createAuthServer({}, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('get formatted scopes when authAccessFormatter option is present', async () => {
+  it('get formatted scopes when authAccessFormatter option is present', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/swagger.json'
@@ -143,18 +141,21 @@ lab.experiment('authentication', () => {
       routes
     );
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/bookmarks/'].post.description).to.equal(`Scopes:
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(
+      response.result.paths['/bookmarks/'].post.description,
+      `Scopes:
 - admin
-- manager`);
+- manager`
+    );
   });
 
-  lab.test('get API interface with bearer token', async () => {
+  it('get API interface with bearer token', async () => {
     const requestOptions = {
       method: 'POST',
       url: '/bookmarks/',
       headers: {
-        authorization: 'Bearer 12345'
+        authorization: `Bearer ${Helper.validBearerToken}`
       },
       payload: {
         url: 'http://glennjones.net'
@@ -163,10 +164,10 @@ lab.experiment('authentication', () => {
 
     const server = await Helper.createAuthServer({}, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  lab.test('get API interface with incorrect bearer token', async () => {
+  it('get API interface with incorrect bearer token', async () => {
     const requestOptions = {
       method: 'POST',
       url: '/bookmarks/',
@@ -180,6 +181,6 @@ lab.experiment('authentication', () => {
 
     const server = await Helper.createAuthServer({}, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(401);
+    assert.deepStrictEqual(response.statusCode, 401);
   });
 });

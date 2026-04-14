@@ -1,15 +1,13 @@
-'use strict';
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
-const Code = require('@hapi/code');
+('use strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('child-models (OpenAPI)', () => {
+describe('child-models (OpenAPI)', () => {
   const requestOptions = {
     method: 'GET',
     url: '/openapi.json',
@@ -96,13 +94,13 @@ lab.experiment('child-models (OpenAPI)', () => {
     }
   ];
 
-  lab.test('child definitions models', async () => {
+  it('child definitions models', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/foo/v1/bar'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/foo/v1/bar'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -112,7 +110,7 @@ lab.experiment('child-models (OpenAPI)', () => {
       }
     });
 
-    expect(response.result.components.schemas.Model1).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.Model1, {
       properties: {
         outer1: {
           $ref: '#/components/schemas/outer1'
@@ -124,7 +122,7 @@ lab.experiment('child-models (OpenAPI)', () => {
       type: 'object'
     });
 
-    expect(response.result.components.schemas.outer1).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.outer1, {
       properties: {
         inner1: {
           type: 'string'
@@ -133,16 +131,16 @@ lab.experiment('child-models (OpenAPI)', () => {
       type: 'object'
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('object within an object - array within an array', async () => {
+  it('object within an object - array within an array', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/bar/objects'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/objects'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -151,7 +149,7 @@ lab.experiment('child-models (OpenAPI)', () => {
         }
       }
     });
-    expect(response.result.paths['/bar/objects'].post.responses[200]).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/objects'].post.responses[200], {
       description: 'Successful',
       content: {
         'application/json': {
@@ -161,7 +159,7 @@ lab.experiment('child-models (OpenAPI)', () => {
         }
       }
     });
-    expect(response.result.components.schemas.FooObjParent).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.FooObjParent, {
       type: 'object',
       properties: {
         foos: {
@@ -169,7 +167,7 @@ lab.experiment('child-models (OpenAPI)', () => {
         }
       }
     });
-    expect(response.result.components.schemas.FooObj).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.FooObj, {
       type: 'object',
       properties: {
         foo: {
@@ -179,7 +177,7 @@ lab.experiment('child-models (OpenAPI)', () => {
       }
     });
 
-    expect(response.result.paths['/bar/arrays'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/arrays'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -188,7 +186,7 @@ lab.experiment('child-models (OpenAPI)', () => {
         }
       }
     });
-    expect(response.result.paths['/bar/arrays'].post.responses[200]).to.equal({
+    assert.deepStrictEqual(response.result.paths['/bar/arrays'].post.responses[200], {
       description: 'Successful',
       content: {
         'application/json': {
@@ -198,19 +196,19 @@ lab.experiment('child-models (OpenAPI)', () => {
         }
       }
     });
-    expect(response.result.components.schemas.FooArrParent).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.FooArrParent, {
       type: 'array',
       items: {
         $ref: '#/components/schemas/FooArr'
       }
     });
-    expect(response.result.components.schemas.FooArr).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.FooArr, {
       type: 'array',
       items: {
         $ref: '#/components/schemas/FooArrObj'
       }
     });
-    expect(response.result.components.schemas.FooArrObj).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas.FooArrObj, {
       type: 'object',
       properties: {
         bar: {

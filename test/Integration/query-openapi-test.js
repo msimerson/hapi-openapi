@@ -1,14 +1,12 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('query (OpenAPI)', () => {
-  lab.test('parameter required', async () => {
+describe('query (OpenAPI)', () => {
+  it('parameter required', async () => {
     const testRoutes = [
       {
         method: 'GET',
@@ -43,8 +41,8 @@ lab.experiment('query (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/required'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/required'].get.parameters, [
       {
         name: 'requiredParameter',
         in: 'query',
@@ -77,7 +75,7 @@ lab.experiment('query (OpenAPI)', () => {
       }
     ]);
 
-    expect(response.result.paths['/altParam'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/altParam'].get.parameters, [
       {
         name: 'altParam',
         in: 'query',
@@ -88,10 +86,10 @@ lab.experiment('query (OpenAPI)', () => {
     ]);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('parameter of object type', async () => {
+  it('parameter of object type', async () => {
     const testRoutes = [
       {
         method: 'GET',
@@ -159,9 +157,9 @@ lab.experiment('query (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     // OAS v3.0: object query params use content-based JSON encoding
-    expect(response.result.paths['/emptyobject'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/emptyobject'].get.parameters, [
       {
         name: 'objParam',
         in: 'query',
@@ -175,7 +173,7 @@ lab.experiment('query (OpenAPI)', () => {
       }
     ]);
 
-    expect(response.result.paths['/objectWithProps'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/objectWithProps'].get.parameters, [
       {
         name: 'objParam',
         in: 'query',
@@ -194,7 +192,7 @@ lab.experiment('query (OpenAPI)', () => {
       }
     ]);
 
-    expect(response.result.paths['/arrayOfObjects'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/arrayOfObjects'].get.parameters, [
       {
         name: 'arrayParam',
         in: 'query',
@@ -213,7 +211,7 @@ lab.experiment('query (OpenAPI)', () => {
         }
       }
     ]);
-    expect(response.result.paths['/arrayWithItemDescription'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/arrayWithItemDescription'].get.parameters, [
       {
         name: 'arrayParam',
         in: 'query',
@@ -238,10 +236,10 @@ lab.experiment('query (OpenAPI)', () => {
     ]);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('labeled object query param creates $ref definition', async () => {
+  it('labeled object query param creates $ref definition', async () => {
     const testRoutes = [
       {
         method: 'GET',
@@ -263,10 +261,10 @@ lab.experiment('query (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0', definitionPrefix: 'useLabel' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
     // labeled object query param should produce a $ref in content encoding
-    expect(response.result.paths['/labeled'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/labeled'].get.parameters, [
       {
         name: 'filter',
         in: 'query',
@@ -281,16 +279,16 @@ lab.experiment('query (OpenAPI)', () => {
     ]);
 
     // the definition should exist in components.schemas
-    expect(response.result.components.schemas.MyFilter).to.exist();
-    expect(response.result.components.schemas.MyFilter.type).to.equal('object');
-    expect(response.result.components.schemas.MyFilter.properties.name.type).to.equal('string');
-    expect(response.result.components.schemas.MyFilter.properties.age.type).to.equal('number');
+    assert.ok(response.result.components.schemas.MyFilter != null);
+    assert.deepStrictEqual(response.result.components.schemas.MyFilter.type, 'object');
+    assert.deepStrictEqual(response.result.components.schemas.MyFilter.properties.name.type, 'string');
+    assert.deepStrictEqual(response.result.components.schemas.MyFilter.properties.age.type, 'number');
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('required object query param preserves required flag', async () => {
+  it('required object query param preserves required flag', async () => {
     const testRoutes = [
       {
         method: 'GET',
@@ -311,9 +309,9 @@ lab.experiment('query (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, testRoutes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/requiredFilter'].get.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/requiredFilter'].get.parameters, [
       {
         name: 'filter',
         in: 'query',
@@ -334,6 +332,6 @@ lab.experiment('query (OpenAPI)', () => {
     ]);
 
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

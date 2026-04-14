@@ -1,11 +1,9 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('filter', () => {
+describe('filter', () => {
   const routes = [
     {
       method: 'GET',
@@ -48,110 +46,125 @@ lab.experiment('filter', () => {
     }
   ];
 
-  lab.test('by `api` tag by default', async () => {
+  it('by `api` tag by default', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(Object.keys(response.result.paths).length).to.equal(3);
-    expect(response.result.paths['/api-beta-tag']).to.exist();
-    expect(response.result.paths['/api-alpha-tag']).to.exist();
-    expect(response.result.paths['/api-alpha-gamma-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 3);
+    assert.ok(response.result.paths['/api-beta-tag'] != null);
+    assert.ok(response.result.paths['/api-alpha-tag'] != null);
+    assert.ok(response.result.paths['/api-alpha-gamma-tag'] != null);
   });
 
-  lab.test('Query string params (alpha OR gamma), then by `routeTag` (api)', async () => {
+  it('Query string params (alpha OR gamma), then by `routeTag` (api)', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=alpha,gamma' });
-    expect(Object.keys(response.result.paths).length).to.equal(2);
-    expect(response.result.paths['/api-alpha-tag']).to.exist();
-    expect(response.result.paths['/api-alpha-gamma-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 2);
+    assert.ok(response.result.paths['/api-alpha-tag'] != null);
+    assert.ok(response.result.paths['/api-alpha-gamma-tag'] != null);
   });
 
-  lab.test('Query string params (beta), then by `routeTag` (function)', async () => {
+  it('Query string params (beta), then by `routeTag` (function)', async () => {
     const server = await Helper.createServer({ routeTag: (tags) => !tags.includes('api') }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=beta' });
-    expect(Object.keys(response.result.paths).length).to.equal(1);
-    expect(response.result.paths['/beta-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 1);
+    assert.ok(response.result.paths['/beta-tag'] != null);
   });
 
-  lab.test('Query string params (alpha OR beta) AND api, then by `routeTag` (api)', async () => {
+  it('Query string params (alpha OR beta) AND api, then by `routeTag` (api)', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({
       method: 'GET',
       url: `/swagger.json?tags=alpha,beta,${encodeURIComponent('+')}api`
     });
-    expect(Object.keys(response.result.paths).length).to.equal(3);
-    expect(response.result.paths['/api-alpha-tag']).to.exist();
-    expect(response.result.paths['/api-beta-tag']).to.exist();
-    expect(response.result.paths['/api-alpha-gamma-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 3);
+    assert.ok(response.result.paths['/api-alpha-tag'] != null);
+    assert.ok(response.result.paths['/api-beta-tag'] != null);
+    assert.ok(response.result.paths['/api-alpha-gamma-tag'] != null);
   });
 
-  lab.test('Query string params (alpha AND gamma), then by `routeTag` (api)', async () => {
+  it('Query string params (alpha AND gamma), then by `routeTag` (api)', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({
       method: 'GET',
       url: `/swagger.json?tags=alpha,${encodeURIComponent('+')}gamma`
     });
-    expect(Object.keys(response.result.paths).length).to.equal(1);
-    expect(response.result.paths['/api-alpha-gamma-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 1);
+    assert.ok(response.result.paths['/api-alpha-gamma-tag'] != null);
   });
 
-  lab.test('Query string params (alpha AND NOT gamma), then by `routeTag` (api)', async () => {
+  it('Query string params (alpha AND NOT gamma), then by `routeTag` (api)', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json?tags=alpha,-gamma' });
-    expect(Object.keys(response.result.paths).length).to.equal(1);
-    expect(response.result.paths['/api-alpha-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 1);
+    assert.ok(response.result.paths['/api-alpha-tag'] != null);
   });
 
-  lab.test('by `routeTag` string if set', async () => {
+  it('by `routeTag` string if set', async () => {
     const server = await Helper.createServer({ routeTag: 'beta' }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(Object.keys(response.result.paths).length).to.equal(2);
-    expect(response.result.paths['/api-beta-tag']).to.exist();
-    expect(response.result.paths['/beta-tag']).to.exist();
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 2);
+    assert.ok(response.result.paths['/api-beta-tag'] != null);
+    assert.ok(response.result.paths['/beta-tag'] != null);
   });
 
-  lab.test('by `routeTag` function if set', async () => {
+  it('by `routeTag` function if set', async () => {
     const server = await Helper.createServer(
       { routeTag: (tags) => tags.includes('api') && tags.includes('beta') },
       routes
     );
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths).length).to.equal(1);
-    expect(response.result.paths['/api-beta-tag']).to.exist();
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, 1);
+    assert.ok(response.result.paths['/api-beta-tag'] != null);
   });
 
-  lab.test('picks all routes if `routeTag` is set to () => true', async () => {
+  it('picks all routes if `routeTag` is set to () => true', async () => {
     const server = await Helper.createServer({ routeTag: () => true }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths).length).to.equal(routes.length);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, routes.length);
     const documentedRoutes = Object.keys(response.result.paths);
-    expect(documentedRoutes.some(route => route.includes('swagger'))).to.false();
+    assert.strictEqual(
+      documentedRoutes.some((route) => route.includes('swagger')),
+      false
+    );
   });
 
-  lab.test('picks all routes if `routeTag` is set to () => true, when jsonPath is not default', async () => {
+  it('picks all routes if `routeTag` is set to () => true, when jsonPath is not default', async () => {
     const jsonPath = '/testPath/swagger-test.json';
-    const server = await Helper.createServer({
-      jsonPath,
-      routeTag: () => true
-    }, routes);
+    const server = await Helper.createServer(
+      {
+        jsonPath,
+        routeTag: () => true
+      },
+      routes
+    );
     const response = await server.inject({ method: 'GET', url: jsonPath });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths).length).to.equal(routes.length);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, routes.length);
     const documentedRoutes = Object.keys(response.result.paths);
-    expect(documentedRoutes.some(route => route.includes('swagger'))).to.false();
+    assert.strictEqual(
+      documentedRoutes.some((route) => route.includes('swagger')),
+      false
+    );
   });
 
-  lab.test('picks all routes if `routeTag` is set to () => true, when swaggerUIPath is not default', async () => {
+  it('picks all routes if `routeTag` is set to () => true, when swaggerUIPath is not default', async () => {
     const swaggerUIPath = '/testPath';
-    const server = await Helper.createServer({
-      swaggerUIPath,
-      routeTag: () => true
-    }, routes);
+    const server = await Helper.createServer(
+      {
+        swaggerUIPath,
+        routeTag: () => true
+      },
+      routes
+    );
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(Object.keys(response.result.paths).length).to.equal(routes.length);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(Object.keys(response.result.paths).length, routes.length);
     const documentedRoutes = Object.keys(response.result.paths);
-    expect(documentedRoutes.some(route => route.includes('swagger'))).to.false();
+    assert.strictEqual(
+      documentedRoutes.some((route) => route.includes('swagger')),
+      false
+    );
   });
 });

@@ -1,9 +1,7 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
-const Validate = require('../../lib/validate.js');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
+const Validate = require('../../lib/validate.js');
 
 const swaggerJSON = {
   swagger: '2.0',
@@ -102,35 +100,35 @@ const openAPIJSON = {
 };
 
 [swaggerJSON, openAPIJSON].forEach((json) => {
-  lab.experiment('validate - log ', () => {
-    lab.test('bad schema', async () => {
+  describe('validate - log ', () => {
+    it('bad schema', async () => {
       const cb = (tags) => {
-        expect(tags).to.equal(['validation', 'error']);
+        assert.deepStrictEqual(tags, ['validation', 'error']);
       };
 
       const isValid = await Validate.log({}, cb);
-      expect(isValid).to.false();
+      assert.strictEqual(isValid, false);
     });
 
-    lab.test('good schema', async () => {
+    it('good schema', async () => {
       const cb = (tags) => {
-        expect(tags).to.equal(['validation', 'info']);
+        assert.deepStrictEqual(tags, ['validation', 'info']);
       };
 
       const isValid = await Validate.log(json, cb);
-      expect(isValid).to.true();
+      assert.strictEqual(isValid, true);
     });
   });
 
-  lab.experiment('validate - test ', () => {
-    lab.test('bad schema', async () => {
+  describe('validate - test ', () => {
+    it('bad schema', async () => {
       const status = await Validate.test({});
-      expect(status).to.equal(false);
+      assert.deepStrictEqual(status, false);
     });
 
-    lab.test('good schema', async () => {
+    it('good schema', async () => {
       const status = await Validate.test(json);
-      expect(status).to.equal(true);
+      assert.deepStrictEqual(status, true);
     });
   });
 });

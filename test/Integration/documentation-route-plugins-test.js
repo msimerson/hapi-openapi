@@ -1,12 +1,10 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('documentation-route-plugins', () => {
+describe('documentation-route-plugins', () => {
   const routes = [
     {
       method: 'GET',
@@ -25,30 +23,30 @@ lab.experiment('documentation-route-plugins', () => {
         case '/test':
           break;
         case '/documentation':
-          expect(route.settings.plugins).to.equal(plugins);
+          assert.deepStrictEqual(route.settings.plugins, plugins);
           break;
         case '/swagger.json':
-          expect(route.settings.plugins).to.equal({ '@msimerson/hapi-openapi': false });
+          assert.deepStrictEqual(route.settings.plugins, { '@msimerson/hapi-openapi': false });
           break;
         case '/swaggerui/extend.js':
         case '/swaggerui/{path*}':
-          expect(route.settings.plugins).to.equal({});
+          assert.deepStrictEqual(route.settings.plugins, {});
           break;
         default:
           break;
       }
     });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   };
 
-  lab.test('should have no documentationRoutePlugins property', async () => {
+  it('should have no documentationRoutePlugins property', async () => {
     await testServer({}, {});
   });
 
-  lab.test('should have documentationRoutePlugins property passed', async () => {
+  it('should have documentationRoutePlugins property passed', async () => {
     const swaggerOptions = {
       documentationRoutePlugins: {
         blankie: {
@@ -59,7 +57,7 @@ lab.experiment('documentation-route-plugins', () => {
     await testServer(swaggerOptions, swaggerOptions.documentationRoutePlugins);
   });
 
-  lab.test('should have multiple documentationRoutePlugins options', async () => {
+  it('should have multiple documentationRoutePlugins options', async () => {
     const swaggerOptions = {
       documentationRoutePlugins: {
         blankie: {

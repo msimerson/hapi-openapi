@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('path', () => {
+describe('path', () => {
   const requiredChildSchema = Joi.object({
     p1: Joi.string()
   }).required();
@@ -38,25 +36,25 @@ lab.experiment('path', () => {
     }
   };
 
-  lab.test('parent required should include required children', async () => {
+  it('parent required should include required children', async () => {
     // we need to set reuseDefinitions to false here otherwise,
     // Request would be reused for Response as they're too similar
     const server = await Helper.createServer({ reuseDefinitions: false }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.result.definitions.Request.required).to.equal(['requiredChild']);
-    expect(response.result.definitions.Response.required).to.equal(['requiredChild']);
+    assert.deepStrictEqual(response.result.definitions.Request.required, ['requiredChild']);
+    assert.deepStrictEqual(response.result.definitions.Response.required, ['requiredChild']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('parent required should include required children (OpenAPI)', async () => {
+  it('parent required should include required children (OpenAPI)', async () => {
     // we need to set reuseDefinitions to false here otherwise,
     // Request would be reused for Response as they're too similar
     const server = await Helper.createServer({ OAS: 'v3.0', reuseDefinitions: false }, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.result.components.schemas.Request.required).to.equal(['requiredChild']);
-    expect(response.result.components.schemas.Response.required).to.equal(['requiredChild']);
+    assert.deepStrictEqual(response.result.components.schemas.Request.required, ['requiredChild']);
+    assert.deepStrictEqual(response.result.components.schemas.Response.required, ['requiredChild']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

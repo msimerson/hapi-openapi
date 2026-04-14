@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('alternatives', () => {
+describe('alternatives', () => {
   const routes = [
     {
       method: 'POST',
@@ -146,12 +144,12 @@ lab.experiment('alternatives', () => {
     }
   ];
 
-  lab.test('x-alternatives', async () => {
+  it('x-alternatives', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/store/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters, [
       {
         in: 'body',
         schema: {
@@ -180,7 +178,7 @@ lab.experiment('alternatives', () => {
       }
     ]);
 
-    expect(response.result.paths['/store2/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/store2/'].post.parameters, [
       {
         in: 'body',
         name: 'body',
@@ -198,7 +196,7 @@ lab.experiment('alternatives', () => {
       }
     ]);
 
-    expect(response.result.paths['/store2/'].post.responses).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store2/'].post.responses, {
       200: {
         schema: {
           $ref: '#/definitions/Alternative',
@@ -215,7 +213,7 @@ lab.experiment('alternatives', () => {
       }
     });
 
-    expect(response.result['x-alt-definitions'].alternative1).to.equal({
+    assert.deepStrictEqual(response.result['x-alt-definitions'].alternative1, {
       type: 'object',
       properties: {
         name: {
@@ -225,7 +223,7 @@ lab.experiment('alternatives', () => {
       required: ['name']
     });
 
-    expect(response.result.definitions.Model1).to.equal({
+    assert.deepStrictEqual(response.result.definitions.Model1, {
       type: 'object',
       properties: {
         type: {
@@ -261,16 +259,16 @@ lab.experiment('alternatives', () => {
 
     // test full swagger document
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('no x-alternatives', async () => {
+  it('no x-alternatives', async () => {
     const server = await Helper.createServer({ xProperties: false }, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/store/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/store/'].post.parameters, [
       {
         name: 'body',
         in: 'body',
@@ -279,7 +277,7 @@ lab.experiment('alternatives', () => {
         }
       }
     ]);
-    expect(response.result.paths['/store2/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/store2/'].post.parameters, [
       {
         name: 'body',
         in: 'body',
@@ -289,7 +287,7 @@ lab.experiment('alternatives', () => {
       }
     ]);
 
-    expect(response.result.paths['/store4/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/store4/'].post.parameters, [
       {
         in: 'body',
         name: 'body',
@@ -299,7 +297,7 @@ lab.experiment('alternatives', () => {
       }
     ]);
 
-    expect(response.result.definitions).to.equal({
+    assert.deepStrictEqual(response.result.definitions, {
       Alternative: {
         type: 'object',
         properties: {
@@ -368,16 +366,16 @@ lab.experiment('alternatives', () => {
 
     // test full swagger document
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('OpenAPI v3.0', async () => {
+  it('OpenAPI v3.0', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
 
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/store/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -395,7 +393,7 @@ lab.experiment('alternatives', () => {
         }
       }
     });
-    expect(response.result.paths['/store2/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store2/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -411,7 +409,7 @@ lab.experiment('alternatives', () => {
         }
       }
     });
-    expect(response.result.paths['/store2/'].post.responses).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store2/'].post.responses, {
       200: {
         content: {
           'application/json': {
@@ -431,7 +429,7 @@ lab.experiment('alternatives', () => {
       }
     });
 
-    expect(response.result.paths['/store4/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/store4/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -441,7 +439,7 @@ lab.experiment('alternatives', () => {
       }
     });
 
-    expect(response.result.components.schemas).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas, {
       Type: { type: 'string', enum: ['string', 'number', 'image'] },
       Model1: {
         type: 'object',
@@ -470,7 +468,7 @@ lab.experiment('alternatives', () => {
       }
     });
 
-    expect(response.result['x-alt-definitions']).to.equal({
+    assert.deepStrictEqual(response.result['x-alt-definitions'], {
       alternative1: {
         type: 'object',
         properties: { name: { type: 'string' } },
@@ -499,6 +497,6 @@ lab.experiment('alternatives', () => {
 
     // test full swagger document
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

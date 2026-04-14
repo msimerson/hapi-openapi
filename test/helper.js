@@ -1,11 +1,15 @@
-const BearerToken = require('hapi-auth-bearer-token');
 const H2o2 = require('@hapi/h2o2');
 const Hapi = require('@hapi/hapi');
-const Boom = require('@hapi/boom');
-const Wreck = require('@hapi/wreck');
+const JWT = require('jsonwebtoken');
+const { json: streamJson } = require('node:stream/consumers');
 const HapiOpenapi = require('../lib/index.js');
 
+const BEARER_SECRET = 'bearer-test-secret';
+const BEARER_PAYLOAD = { id: 1, scope: ['admin'] };
+
 const helper = (module.exports = {});
+
+helper.validBearerToken = JWT.sign(BEARER_PAYLOAD, BEARER_SECRET);
 
 /**
  * creates a Hapi server
@@ -84,16 +88,23 @@ helper.createAuthServer = async (swaggerOptions, routes, serverOptions = {}) => 
 
   await server.register([
     H2o2,
-    BearerToken,
+    require('hapi-auth-jwt2'),
     {
       plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);
 
-  server.auth.strategy('bearer', 'bearer-access-token', {
-    accessTokenName: 'access_token',
-    validate: helper.validateBearer
+  server.auth.strategy('bearer', 'jwt', {
+    key: BEARER_SECRET,
+    validate: (decoded) => ({
+      isValid: decoded.id === BEARER_PAYLOAD.id,
+      credentials: {
+        ...decoded,
+        user: { username: 'glennjones', name: 'Glenn Jones', groups: ['admin', 'user'] }
+      }
+    }),
+    verifyOptions: { algorithms: ['HS256'] }
   });
   server.route(routes);
 
@@ -166,33 +177,13 @@ helper.defaultHandler = () => {
  * @param  {Object} request
  * @param  {Object} reply
  */
-helper.defaultAuthHandler = (request) => {
+helper.defaultAuthHandler = (request, h) => {
   if (request.auth && request.auth.credentials && request.auth.credentials.user) {
     return request.auth.credentials.user;
   }
 
-  return Boom.unauthorized(['unauthorized access'], [request.auth.strategy]);
+  return h.response({ message: 'unauthorized' }).code(401);
 };
-
-/**
- * a validation function for bearer strategy
- *
- * @param  {string} token
- * @param  {Function} callback
- */
-helper.validateBearer = (request, token) => ({
-  isValid: token === '12345',
-
-  credentials: {
-    token,
-    user: {
-      username: 'glennjones',
-      name: 'Glenn Jones',
-      groups: ['admin', 'user']
-    },
-    scope: ['admin']
-  }
-});
 
 /**
  * fires a Hapi reply with json payload - see h2o2 onResponse function signature
@@ -204,9 +195,8 @@ helper.validateBearer = (request, token) => ({
  * @param  {Object} settings
  * @param  {number} ttl
  **/
-helper.replyWithJSON = async (_, res) => {
-  const { payload } = await Wreck.read(res, { json: true });
-  return payload;
+helper.replyWithJSON = (_, res) => {
+  return streamJson(res);
 };
 
 /**

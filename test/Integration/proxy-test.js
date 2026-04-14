@@ -1,14 +1,12 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const { clone } = require('@hapi/hoek');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('proxies', () => {
+describe('proxies', () => {
   const requestOptions = {
     method: 'GET',
     url: '/swagger.json',
@@ -27,20 +25,20 @@ lab.experiment('proxies', () => {
     }
   };
 
-  lab.test('basePath option', async () => {
+  it('basePath option', async () => {
     const options = {
       basePath: '/v2'
     };
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.basePath).to.equal(options.basePath);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.basePath, options.basePath);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('schemes and host options', async () => {
+  it('schemes and host options', async () => {
     const options = {
       schemes: ['https'],
       host: 'testhost'
@@ -48,28 +46,28 @@ lab.experiment('proxies', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.host).to.equal(options.host);
-    expect(response.result.schemes).to.equal(options.schemes);
+    assert.deepStrictEqual(response.result.host, options.host);
+    assert.deepStrictEqual(response.result.schemes, options.schemes);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('referrer vs host and port', async () => {
+  it('referrer vs host and port', async () => {
     const options = {};
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.host).to.equal(new URL(requestOptions.headers.referrer).host);
+    assert.deepStrictEqual(response.result.host, new URL(requestOptions.headers.referrer).host);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
     const clonedOptions = clone(requestOptions);
     delete clonedOptions.headers.referrer;
     const response2 = await server.inject(clonedOptions);
-    expect(response2.result.host).to.equal(requestOptions.headers.host);
-    expect(await Validate.test(response2.result)).to.be.true();
+    assert.deepStrictEqual(response2.result.host, requestOptions.headers.host);
+    assert.strictEqual(await Validate.test(response2.result), true);
   });
 
-  lab.test('x-forwarded options', async () => {
+  it('x-forwarded options', async () => {
     const options = {};
 
     requestOptions.headers = {
@@ -79,11 +77,11 @@ lab.experiment('proxies', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.host).to.equal(requestOptions.headers['x-forwarded-host']);
-    expect(response.result.schemes).to.equal(['https']);
+    assert.deepStrictEqual(response.result.host, requestOptions.headers['x-forwarded-host']);
+    assert.deepStrictEqual(response.result.schemes, ['https']);
   });
 
-  lab.test('x-forwarded options', async () => {
+  it('x-forwarded options', async () => {
     const options = {};
 
     requestOptions.headers = {
@@ -93,11 +91,11 @@ lab.experiment('proxies', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.host).to.equal(requestOptions.headers['x-forwarded-host']);
-    expect(response.result.schemes).to.equal(['https']);
+    assert.deepStrictEqual(response.result.host, requestOptions.headers['x-forwarded-host']);
+    assert.deepStrictEqual(response.result.schemes, ['https']);
   });
 
-  lab.test('multi-hop x-forwarded options', async () => {
+  it('multi-hop x-forwarded options', async () => {
     const options = {};
 
     requestOptions.headers = {
@@ -107,11 +105,11 @@ lab.experiment('proxies', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.host).to.equal('proxyhost');
-    expect(response.result.schemes).to.equal(['https']);
+    assert.deepStrictEqual(response.result.host, 'proxyhost');
+    assert.deepStrictEqual(response.result.schemes, ['https']);
   });
 
-  lab.test('Azure Web Sites options', async () => {
+  it('Azure Web Sites options', async () => {
     const options = {};
 
     requestOptions.headers = {
@@ -122,13 +120,13 @@ lab.experiment('proxies', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.host).to.equal(requestOptions.headers['disguised-host']);
-    expect(response.result.schemes).to.equal(['https']);
+    assert.deepStrictEqual(response.result.host, requestOptions.headers['disguised-host']);
+    assert.deepStrictEqual(response.result.schemes, ['https']);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('iisnode options', async () => {
+  it('iisnode options', async () => {
     const serverOptions = {
       port: '\\\\.\\pipe\\GUID-expected-here'
     };
@@ -147,11 +145,11 @@ lab.experiment('proxies', () => {
     // with EADDRINUSE.
     await server.stop();
 
-    expect(response.result.host).to.equal(requestOptions.headers['disguised-host']);
-    expect(response.result.schemes).to.equal(['http']);
+    assert.deepStrictEqual(response.result.host, requestOptions.headers['disguised-host']);
+    assert.deepStrictEqual(response.result.schemes, ['http']);
   });
 
-  lab.test('adding facade for proxy using route options 1', async () => {
+  it('adding facade for proxy using route options 1', async () => {
     const routes = {
       method: 'POST',
       path: '/tools/microformats/',
@@ -190,7 +188,7 @@ lab.experiment('proxies', () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.result.paths['/tools/microformats/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/tools/microformats/'].post.parameters, [
       {
         type: 'string',
         in: 'header',
@@ -216,7 +214,7 @@ lab.experiment('proxies', () => {
     ]);
   });
 
-  lab.test('adding facade for proxy using route options 2 - naming', async () => {
+  it('adding facade for proxy using route options 2 - naming', async () => {
     const routes = {
       method: 'POST',
       path: '/tools/microformats/',
@@ -245,7 +243,7 @@ lab.experiment('proxies', () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.result.paths['/tools/microformats/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/tools/microformats/'].post.parameters, [
       {
         in: 'body',
         name: 'body',
@@ -255,10 +253,10 @@ lab.experiment('proxies', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('adding facade for proxy using route options 3 - defination reuse', async () => {
+  it('adding facade for proxy using route options 3 - defination reuse', async () => {
     const routes = [
       {
         method: 'POST',
@@ -313,7 +311,7 @@ lab.experiment('proxies', () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.result.definitions).to.equal({
+    assert.deepStrictEqual(response.result.definitions, {
       testname: {
         properties: {
           a: {
@@ -327,7 +325,7 @@ lab.experiment('proxies', () => {
     });
   });
 
-  lab.test('adding facade for proxy using route options 4 - defination name clash', async () => {
+  it('adding facade for proxy using route options 4 - defination name clash', async () => {
     const routes = [
       {
         method: 'POST',
@@ -381,7 +379,7 @@ lab.experiment('proxies', () => {
 
     const server = await Helper.createServer({}, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.definitions).to.equal({
+    assert.deepStrictEqual(response.result.definitions, {
       testname: {
         properties: {
           a: {

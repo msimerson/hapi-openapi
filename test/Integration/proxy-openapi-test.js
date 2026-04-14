@@ -1,14 +1,12 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const { clone } = require('@hapi/hoek');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('proxies (OpenAPI)', () => {
+describe('proxies (OpenAPI)', () => {
   const requestOptions = {
     method: 'GET',
     url: '/openapi.json',
@@ -27,7 +25,7 @@ lab.experiment('proxies (OpenAPI)', () => {
     }
   };
 
-  lab.test('basePath option', async () => {
+  it('basePath option', async () => {
     const options = {
       OAS: 'v3.0',
       basePath: '/v2'
@@ -35,13 +33,13 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.servers).to.equal([{ url: 'http://localhost' + options.basePath }]);
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.servers, [{ url: 'http://localhost' + options.basePath }]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('servers option', async () => {
+  it('servers option', async () => {
     const options = {
       OAS: 'v3.0',
       servers: [{ url: 'https://testhost' }]
@@ -49,27 +47,27 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.servers).to.equal([{ url: 'https://testhost' }]);
+    assert.deepStrictEqual(response.result.servers, [{ url: 'https://testhost' }]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('referrer vs host and port', async () => {
+  it('referrer vs host and port', async () => {
     const options = { OAS: 'v3.0' };
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.servers).to.equal([{ url: `${requestOptions.headers.referrer}/` }]);
+    assert.deepStrictEqual(response.result.servers, [{ url: `${requestOptions.headers.referrer}/` }]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
     const clonedOptions = clone(requestOptions);
     delete clonedOptions.headers.referrer;
     const response2 = await server.inject(clonedOptions);
-    expect(response2.result.servers).to.equal([{ url: `http://${requestOptions.headers.host}` }]);
-    expect(await Validate.test(response2.result)).to.be.true();
+    assert.deepStrictEqual(response2.result.servers, [{ url: `http://${requestOptions.headers.host}` }]);
+    assert.strictEqual(await Validate.test(response2.result), true);
   });
 
-  lab.test('x-forwarded options', async () => {
+  it('x-forwarded options', async () => {
     const options = { OAS: 'v3.0' };
 
     requestOptions.headers = {
@@ -79,10 +77,12 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.servers).to.equal([{ url: `https://${requestOptions.headers['x-forwarded-host']}/` }]);
+    assert.deepStrictEqual(response.result.servers, [
+      { url: `https://${requestOptions.headers['x-forwarded-host']}/` }
+    ]);
   });
 
-  lab.test('x-forwarded options', async () => {
+  it('x-forwarded options', async () => {
     const options = { OAS: 'v3.0' };
 
     requestOptions.headers = {
@@ -92,10 +92,12 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.servers).to.equal([{ url: `https://${requestOptions.headers['x-forwarded-host']}/` }]);
+    assert.deepStrictEqual(response.result.servers, [
+      { url: `https://${requestOptions.headers['x-forwarded-host']}/` }
+    ]);
   });
 
-  lab.test('multi-hop x-forwarded options', async () => {
+  it('multi-hop x-forwarded options', async () => {
     const options = { OAS: 'v3.0' };
 
     requestOptions.headers = {
@@ -105,10 +107,10 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.servers).to.equal([{ url: 'https://proxyhost/' }]);
+    assert.deepStrictEqual(response.result.servers, [{ url: 'https://proxyhost/' }]);
   });
 
-  lab.test('Azure Web Sites options', async () => {
+  it('Azure Web Sites options', async () => {
     const options = { OAS: 'v3.0' };
 
     requestOptions.headers = {
@@ -119,12 +121,12 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer(options, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.servers).to.equal([{ url: `https://${requestOptions.headers['disguised-host']}/` }]);
+    assert.deepStrictEqual(response.result.servers, [{ url: `https://${requestOptions.headers['disguised-host']}/` }]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('iisnode options', async () => {
+  it('iisnode options', async () => {
     const serverOptions = {
       port: '\\\\.\\pipe\\GUID-expected-here'
     };
@@ -143,10 +145,10 @@ lab.experiment('proxies (OpenAPI)', () => {
     // with EADDRINUSE.
     await server.stop();
 
-    expect(response.result.servers).to.equal([{ url: `http://${requestOptions.headers['disguised-host']}/` }]);
+    assert.deepStrictEqual(response.result.servers, [{ url: `http://${requestOptions.headers['disguised-host']}/` }]);
   });
 
-  lab.test('adding facade for proxy using route options 1', async () => {
+  it('adding facade for proxy using route options 1', async () => {
     const routes = {
       method: 'POST',
       path: '/tools/microformats/',
@@ -185,7 +187,7 @@ lab.experiment('proxies (OpenAPI)', () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.result.paths['/tools/microformats/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.result.paths['/tools/microformats/'].post.parameters, [
       {
         in: 'header',
         name: 'testheaders',
@@ -208,7 +210,7 @@ lab.experiment('proxies (OpenAPI)', () => {
         }
       }
     ]);
-    expect(response.result.paths['/tools/microformats/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/tools/microformats/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -219,7 +221,7 @@ lab.experiment('proxies (OpenAPI)', () => {
     });
   });
 
-  lab.test('adding facade for proxy using route options 2 - naming', async () => {
+  it('adding facade for proxy using route options 2 - naming', async () => {
     const routes = {
       method: 'POST',
       path: '/tools/microformats/',
@@ -248,7 +250,7 @@ lab.experiment('proxies (OpenAPI)', () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.result.paths['/tools/microformats/'].post.requestBody).to.equal({
+    assert.deepStrictEqual(response.result.paths['/tools/microformats/'].post.requestBody, {
       content: {
         'application/json': {
           schema: {
@@ -258,10 +260,10 @@ lab.experiment('proxies (OpenAPI)', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('adding facade for proxy using route options 3 - defination reuse', async () => {
+  it('adding facade for proxy using route options 3 - defination reuse', async () => {
     const routes = [
       {
         method: 'POST',
@@ -316,7 +318,7 @@ lab.experiment('proxies (OpenAPI)', () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject(requestOptions);
 
-    expect(response.result.components.schemas).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas, {
       testname: {
         properties: {
           a: {
@@ -330,7 +332,7 @@ lab.experiment('proxies (OpenAPI)', () => {
     });
   });
 
-  lab.test('adding facade for proxy using route options 4 - defination name clash', async () => {
+  it('adding facade for proxy using route options 4 - defination name clash', async () => {
     const routes = [
       {
         method: 'POST',
@@ -384,7 +386,7 @@ lab.experiment('proxies (OpenAPI)', () => {
 
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject(requestOptions);
-    expect(response.result.components.schemas).to.equal({
+    assert.deepStrictEqual(response.result.components.schemas, {
       testname: {
         properties: {
           a: {

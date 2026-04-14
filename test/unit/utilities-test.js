@@ -1,263 +1,279 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Utilities = require('../../lib/utilities.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('utilities', () => {
-  lab.test('isObject', () => {
-    expect(Utilities.isObject(() => {})).to.equal(false);
-    expect(Utilities.isObject({})).to.equal(true);
-    expect(Utilities.isObject(Joi.object())).to.equal(true);
-    expect(Utilities.isObject(null)).to.equal(false);
-    expect(Utilities.isObject(undefined)).to.equal(false);
-    expect(Utilities.isObject([])).to.equal(false);
-    expect(Utilities.isObject('string')).to.equal(false);
-    expect(Utilities.isObject(5)).to.equal(false);
+describe('utilities', () => {
+  it('isObject', () => {
+    assert.deepStrictEqual(
+      Utilities.isObject(() => {}),
+      false
+    );
+    assert.deepStrictEqual(Utilities.isObject({}), true);
+    assert.deepStrictEqual(Utilities.isObject(Joi.object()), true);
+    assert.deepStrictEqual(Utilities.isObject(null), false);
+    assert.deepStrictEqual(Utilities.isObject(undefined), false);
+    assert.deepStrictEqual(Utilities.isObject([]), false);
+    assert.deepStrictEqual(Utilities.isObject('string'), false);
+    assert.deepStrictEqual(Utilities.isObject(5), false);
   });
 
-  lab.test('isFunction', () => {
-    expect(Utilities.isFunction(() => {})).to.equal(true);
-    expect(Utilities.isFunction({})).to.equal(false);
-    expect(Utilities.isFunction(Joi.object())).to.equal(false);
-    expect(Utilities.isFunction(null)).to.equal(false);
-    expect(Utilities.isFunction(undefined)).to.equal(false);
-    expect(Utilities.isFunction([])).to.equal(false);
-    expect(Utilities.isFunction('string')).to.equal(false);
-    expect(Utilities.isFunction(5)).to.equal(false);
+  it('isFunction', () => {
+    assert.deepStrictEqual(
+      Utilities.isFunction(() => {}),
+      true
+    );
+    assert.deepStrictEqual(Utilities.isFunction({}), false);
+    assert.deepStrictEqual(Utilities.isFunction(Joi.object()), false);
+    assert.deepStrictEqual(Utilities.isFunction(null), false);
+    assert.deepStrictEqual(Utilities.isFunction(undefined), false);
+    assert.deepStrictEqual(Utilities.isFunction([]), false);
+    assert.deepStrictEqual(Utilities.isFunction('string'), false);
+    assert.deepStrictEqual(Utilities.isFunction(5), false);
   });
 
-  lab.test('isRegex', () => {
-    expect(Utilities.isRegex(undefined)).to.equal(false);
-    expect(Utilities.isRegex(null)).to.equal(false);
-    expect(Utilities.isRegex(false)).to.equal(false);
-    expect(Utilities.isRegex(true)).to.equal(false);
-    expect(Utilities.isRegex(42)).to.equal(false);
-    expect(Utilities.isRegex('string')).to.equal(false);
-    expect(Utilities.isRegex(() => {})).to.equal(false);
-    expect(Utilities.isRegex([])).to.equal(false);
-    expect(Utilities.isRegex({})).to.equal(false);
+  it('isRegex', () => {
+    assert.deepStrictEqual(Utilities.isRegex(undefined), false);
+    assert.deepStrictEqual(Utilities.isRegex(null), false);
+    assert.deepStrictEqual(Utilities.isRegex(false), false);
+    assert.deepStrictEqual(Utilities.isRegex(true), false);
+    assert.deepStrictEqual(Utilities.isRegex(42), false);
+    assert.deepStrictEqual(Utilities.isRegex('string'), false);
+    assert.deepStrictEqual(
+      Utilities.isRegex(() => {}),
+      false
+    );
+    assert.deepStrictEqual(Utilities.isRegex([]), false);
+    assert.deepStrictEqual(Utilities.isRegex({}), false);
 
-    expect(Utilities.isRegex(/a/g)).to.equal(true);
-    expect(Utilities.isRegex(new RegExp('a', 'g'))).to.equal(true);
+    assert.deepStrictEqual(Utilities.isRegex(/a/g), true);
+    assert.deepStrictEqual(Utilities.isRegex(new RegExp('a', 'g')), true);
   });
 
-  lab.test('hasProperties', () => {
-    expect(Utilities.hasProperties({})).to.equal(false);
-    expect(Utilities.hasProperties({ name: 'test' })).to.equal(true);
-    expect(Utilities.hasProperties(Helper.objWithNoOwnProperty())).to.equal(false);
+  it('hasProperties', () => {
+    assert.deepStrictEqual(Utilities.hasProperties({}), false);
+    assert.deepStrictEqual(Utilities.hasProperties({ name: 'test' }), true);
+    assert.deepStrictEqual(Utilities.hasProperties(Helper.objWithNoOwnProperty()), false);
   });
 
-  lab.test('deleteEmptyProperties', () => {
+  it('deleteEmptyProperties', () => {
     //console.log( JSON.stringify(Utilities.deleteEmptyProperties(objWithNoOwnProperty())) );
-    expect(Utilities.deleteEmptyProperties({})).to.equal({});
-    expect(Utilities.deleteEmptyProperties({ name: 'test' })).to.equal({ name: 'test' });
-    expect(Utilities.deleteEmptyProperties({ name: null })).to.equal({});
-    expect(Utilities.deleteEmptyProperties({ name: undefined })).to.equal({});
-    expect(Utilities.deleteEmptyProperties({ name: [] })).to.equal({});
-    expect(Utilities.deleteEmptyProperties({ name: {} })).to.equal({});
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({}), {});
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ name: 'test' }), { name: 'test' });
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ name: null }), {});
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ name: undefined }), {});
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ name: [] }), {});
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ name: {} }), {});
 
-    expect(Utilities.deleteEmptyProperties({ example: [], default: [] })).to.equal({ example: [], default: [] });
-    expect(Utilities.deleteEmptyProperties({ example: {}, default: {} })).to.equal({ example: {}, default: {} });
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ example: [], default: [] }), { example: [], default: [] });
+    assert.deepStrictEqual(Utilities.deleteEmptyProperties({ example: {}, default: {} }), { example: {}, default: {} });
     // this needs JSON.stringify to compare outputs
-    expect(JSON.stringify(Utilities.deleteEmptyProperties(Helper.objWithNoOwnProperty()))).to.equal('{}');
+    assert.deepStrictEqual(JSON.stringify(Utilities.deleteEmptyProperties(Helper.objWithNoOwnProperty())), '{}');
   });
 
-  lab.test('first', () => {
-    expect(Utilities.first({})).to.equal(undefined);
-    expect(Utilities.first('test')).to.equal(undefined);
-    expect(Utilities.first([])).to.equal(undefined);
-    expect(Utilities.first(['test'])).to.equal('test');
-    expect(Utilities.first(['one', 'two'])).to.equal('one');
+  it('first', () => {
+    assert.deepStrictEqual(Utilities.first({}), undefined);
+    assert.deepStrictEqual(Utilities.first('test'), undefined);
+    assert.deepStrictEqual(Utilities.first([]), undefined);
+    assert.deepStrictEqual(Utilities.first(['test']), 'test');
+    assert.deepStrictEqual(Utilities.first(['one', 'two']), 'one');
   });
 
-  lab.test('hasKey', () => {
-    expect(Utilities.hasKey({}, 'x')).to.equal(false);
-    expect(Utilities.hasKey([], 'x')).to.equal(false);
-    expect(Utilities.hasKey(null, 'x')).to.equal(false);
-    expect(Utilities.hasKey(undefined, 'x')).to.equal(false);
+  it('hasKey', () => {
+    assert.deepStrictEqual(Utilities.hasKey({}, 'x'), false);
+    assert.deepStrictEqual(Utilities.hasKey([], 'x'), false);
+    assert.deepStrictEqual(Utilities.hasKey(null, 'x'), false);
+    assert.deepStrictEqual(Utilities.hasKey(undefined, 'x'), false);
 
-    expect(Utilities.hasKey({ x: 1 }, 'x')).to.equal(true);
-    expect(Utilities.hasKey({ a: { x: 1 } }, 'x')).to.equal(true);
-    expect(Utilities.hasKey({ a: { b: { x: 1 } } }, 'x')).to.equal(true);
-    expect(Utilities.hasKey({ x: 1, z: 2 }, 'x')).to.equal(true);
-    expect(Utilities.hasKey({ xx: 1 }, 'x')).to.equal(false);
+    assert.deepStrictEqual(Utilities.hasKey({ x: 1 }, 'x'), true);
+    assert.deepStrictEqual(Utilities.hasKey({ a: { x: 1 } }, 'x'), true);
+    assert.deepStrictEqual(Utilities.hasKey({ a: { b: { x: 1 } } }, 'x'), true);
+    assert.deepStrictEqual(Utilities.hasKey({ x: 1, z: 2 }, 'x'), true);
+    assert.deepStrictEqual(Utilities.hasKey({ xx: 1 }, 'x'), false);
 
-    expect(Utilities.hasKey([{ x: 1 }], 'x')).to.equal(true);
-    expect(Utilities.hasKey({ a: [{ x: 1 }] }, 'x')).to.equal(true);
+    assert.deepStrictEqual(Utilities.hasKey([{ x: 1 }], 'x'), true);
+    assert.deepStrictEqual(Utilities.hasKey({ a: [{ x: 1 }] }, 'x'), true);
 
-    expect(Utilities.hasKey(Helper.objWithNoOwnProperty(), 'x')).to.equal(false);
-    expect(Utilities.hasKey({ a: {} }, 'x')).to.equal(false);
+    assert.deepStrictEqual(Utilities.hasKey(Helper.objWithNoOwnProperty(), 'x'), false);
+    assert.deepStrictEqual(Utilities.hasKey({ a: {} }, 'x'), false);
   });
 
-  lab.test('findAndRenameKey', () => {
-    expect(Utilities.findAndRenameKey({}, 'x', 'y')).to.equal({});
-    expect(Utilities.findAndRenameKey([], 'x', 'y')).to.equal([]);
-    expect(Utilities.findAndRenameKey(null, 'x', 'y')).to.equal(null);
-    expect(Utilities.findAndRenameKey(undefined, 'x', 'y')).to.equal(undefined);
+  it('findAndRenameKey', () => {
+    assert.deepStrictEqual(Utilities.findAndRenameKey({}, 'x', 'y'), {});
+    assert.deepStrictEqual(Utilities.findAndRenameKey([], 'x', 'y'), []);
+    assert.deepStrictEqual(Utilities.findAndRenameKey(null, 'x', 'y'), null);
+    assert.deepStrictEqual(Utilities.findAndRenameKey(undefined, 'x', 'y'), undefined);
 
-    expect(Utilities.findAndRenameKey({ x: 1 }, 'x', 'y')).to.equal({ y: 1 });
-    expect(Utilities.findAndRenameKey({ a: { x: 1 } }, 'x', 'y')).to.equal({ a: { y: 1 } });
-    expect(Utilities.findAndRenameKey({ a: { b: { x: 1 } } }, 'x', 'y')).to.equal({ a: { b: { y: 1 } } });
-    expect(Utilities.findAndRenameKey({ x: 1, z: 2 }, 'x', 'y')).to.equal({ y: 1, z: 2 });
-    expect(Utilities.findAndRenameKey({ xx: 1 }, 'x', 'y')).to.equal({ xx: 1 });
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ x: 1 }, 'x', 'y'), { y: 1 });
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ a: { x: 1 } }, 'x', 'y'), { a: { y: 1 } });
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ a: { b: { x: 1 } } }, 'x', 'y'), { a: { b: { y: 1 } } });
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ x: 1, z: 2 }, 'x', 'y'), { y: 1, z: 2 });
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ xx: 1 }, 'x', 'y'), { xx: 1 });
 
-    expect(Utilities.findAndRenameKey([{ x: 1 }], 'x', 'y')).to.equal([{ y: 1 }]);
-    expect(Utilities.findAndRenameKey({ a: [{ x: 1 }] }, 'x', 'y')).to.equal({ a: [{ y: 1 }] });
+    assert.deepStrictEqual(Utilities.findAndRenameKey([{ x: 1 }], 'x', 'y'), [{ y: 1 }]);
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ a: [{ x: 1 }] }, 'x', 'y'), { a: [{ y: 1 }] });
 
-    expect(Utilities.findAndRenameKey({ x: 1 }, 'x', null)).to.equal({});
-    expect(Utilities.findAndRenameKey({ x: 1, z: 2 }, 'x', null)).to.equal({ z: 2 });
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ x: 1 }, 'x', null), {});
+    assert.deepStrictEqual(Utilities.findAndRenameKey({ x: 1, z: 2 }, 'x', null), { z: 2 });
 
-    expect(Utilities.findAndRenameKey(Helper.objWithNoOwnProperty(), 'x', 'y')).to.equal({});
+    assert.deepStrictEqual(Utilities.findAndRenameKey(Helper.objWithNoOwnProperty(), 'x', 'y'), {});
   });
 
-  lab.test('first', () => {
-    expect(Utilities.first([])).to.equal(undefined);
-    expect(Utilities.first({})).to.equal(undefined);
-    expect(Utilities.first(['a', 'b'])).to.equal('a');
+  it('first', () => {
+    assert.deepStrictEqual(Utilities.first([]), undefined);
+    assert.deepStrictEqual(Utilities.first({}), undefined);
+    assert.deepStrictEqual(Utilities.first(['a', 'b']), 'a');
   });
 
-  lab.test('sortFirstItem', () => {
-    expect(Utilities.sortFirstItem(['a', 'b'])).to.equal(['a', 'b']);
+  it('sortFirstItem', () => {
+    assert.deepStrictEqual(Utilities.sortFirstItem(['a', 'b']), ['a', 'b']);
 
-    expect(Utilities.sortFirstItem(['b', 'a'], 'a')).to.equal(['a', 'b']);
-    expect(Utilities.sortFirstItem(['b', 'a'], 'b')).to.equal(['b', 'a']);
+    assert.deepStrictEqual(Utilities.sortFirstItem(['b', 'a'], 'a'), ['a', 'b']);
+    assert.deepStrictEqual(Utilities.sortFirstItem(['b', 'a'], 'b'), ['b', 'a']);
 
-    expect(Utilities.sortFirstItem(['b', 'a', 'c'], 'a')).to.equal(['a', 'b', 'c']);
-    expect(Utilities.sortFirstItem(['c', 'b', 'a'], 'a')).to.equal(['a', 'c', 'b']);
+    assert.deepStrictEqual(Utilities.sortFirstItem(['b', 'a', 'c'], 'a'), ['a', 'b', 'c']);
+    assert.deepStrictEqual(Utilities.sortFirstItem(['c', 'b', 'a'], 'a'), ['a', 'c', 'b']);
 
     // Make sure that the function makes a deep copy of the input array and does not change the arguments
     const input = ['b', 'a'];
-    const copyOfInput =  ['b', 'a'];
-    expect(Utilities.sortFirstItem(input, 'a')).to.equal(['a', 'b']);
-    expect(input).to.equal(copyOfInput);
+    const copyOfInput = ['b', 'a'];
+    assert.deepStrictEqual(Utilities.sortFirstItem(input, 'a'), ['a', 'b']);
+    assert.deepStrictEqual(input, copyOfInput);
   });
 
-  lab.test('replaceValue', () => {
-    expect(Utilities.replaceValue(['a', 'b'], 'a', 'c')).to.equal(['c', 'b']);
-    expect(Utilities.replaceValue(['a', 'b'], null, null)).to.equal(['a', 'b']);
-    expect(Utilities.replaceValue(['a', 'b'], 'a', null)).to.equal(['a', 'b']);
-    expect(Utilities.replaceValue(null, null, null)).to.equal(null);
-    expect(Utilities.replaceValue()).to.equal(undefined);
+  it('replaceValue', () => {
+    assert.deepStrictEqual(Utilities.replaceValue(['a', 'b'], 'a', 'c'), ['c', 'b']);
+    assert.deepStrictEqual(Utilities.replaceValue(['a', 'b'], null, null), ['a', 'b']);
+    assert.deepStrictEqual(Utilities.replaceValue(['a', 'b'], 'a', null), ['a', 'b']);
+    assert.deepStrictEqual(Utilities.replaceValue(null, null, null), null);
+    assert.deepStrictEqual(Utilities.replaceValue(), undefined);
   });
 
-  lab.test('removeProps', () => {
-    expect(Utilities.removeProps({ a: 1, b: 2 }, ['a'])).to.equal({ a: 1 });
-    expect(Utilities.removeProps({ a: 1, b: 2 }, ['a', 'b'])).to.equal({ a: 1, b: 2 });
-    expect(Utilities.removeProps({ a: 1, b: 2 }, ['c'])).to.equal({});
-    expect(Utilities.removeProps(Helper.objWithNoOwnProperty(), ['b'])).to.equal({});
+  it('removeProps', () => {
+    assert.deepStrictEqual(Utilities.removeProps({ a: 1, b: 2 }, ['a']), { a: 1 });
+    assert.deepStrictEqual(Utilities.removeProps({ a: 1, b: 2 }, ['a', 'b']), { a: 1, b: 2 });
+    assert.deepStrictEqual(Utilities.removeProps({ a: 1, b: 2 }, ['c']), {});
+    assert.deepStrictEqual(Utilities.removeProps(Helper.objWithNoOwnProperty(), ['b']), {});
   });
 
-  lab.test('isJoi', () => {
-    expect(Utilities.isJoi({})).to.equal(false);
-    expect(Utilities.isJoi(Joi.object())).to.equal(true);
-    expect(
+  it('isJoi', () => {
+    assert.deepStrictEqual(Utilities.isJoi({}), false);
+    assert.deepStrictEqual(Utilities.isJoi(Joi.object()), true);
+    assert.deepStrictEqual(
       Utilities.isJoi(
         Joi.object({
           id: Joi.string()
         })
-      )
-    ).to.equal(true);
+      ),
+      true
+    );
   });
 
-  lab.test('hasJoiChildren', () => {
-    expect(Utilities.hasJoiChildren({})).to.equal(false);
-    expect(Utilities.hasJoiChildren(Joi.object())).to.equal(false);
-    expect(
+  it('hasJoiChildren', () => {
+    assert.deepStrictEqual(Utilities.hasJoiChildren({}), false);
+    assert.deepStrictEqual(Utilities.hasJoiChildren(Joi.object()), false);
+    assert.deepStrictEqual(
       Utilities.hasJoiChildren(
         Joi.object({
           id: Joi.string()
         })
-      )
-    ).to.equal(true);
+      ),
+      true
+    );
   });
 
-  lab.test('hasJoiDescription', () => {
-    expect(Utilities.hasJoiDescription({})).to.equal(false);
-    expect(Utilities.hasJoiDescription(Joi.object())).to.equal(false);
-    expect(Utilities.hasJoiDescription(Joi.object().description('MyDescription'))).to.equal(true);
-    expect(
+  it('hasJoiDescription', () => {
+    assert.deepStrictEqual(Utilities.hasJoiDescription({}), false);
+    assert.deepStrictEqual(Utilities.hasJoiDescription(Joi.object()), false);
+    assert.deepStrictEqual(Utilities.hasJoiDescription(Joi.object().description('MyDescription')), true);
+    assert.deepStrictEqual(
       Utilities.hasJoiDescription(
         Joi.object({
           id: Joi.string()
         })
-      )
-    ).to.equal(false);
-    expect(
+      ),
+      false
+    );
+    assert.deepStrictEqual(
       Utilities.hasJoiDescription(
         Joi.object({
           id: Joi.string()
         }).description('testDescription')
-      )
-    ).to.equal(true);
+      ),
+      true
+    );
   });
 
-  lab.test('toJoiObject', () => {
-    expect(Joi.isSchema(Utilities.toJoiObject([]))).to.equal(false);
-    expect(Joi.isSchema(Utilities.toJoiObject(Object.create(null)))).to.equal(true);
-    expect(Joi.isSchema(Utilities.toJoiObject({}))).to.equal(true);
-    expect(Joi.isSchema(Utilities.toJoiObject(Joi.object()))).to.equal(true);
+  it('toJoiObject', () => {
+    assert.deepStrictEqual(Joi.isSchema(Utilities.toJoiObject([])), false);
+    assert.deepStrictEqual(Joi.isSchema(Utilities.toJoiObject(Object.create(null))), true);
+    assert.deepStrictEqual(Joi.isSchema(Utilities.toJoiObject({})), true);
+    assert.deepStrictEqual(Joi.isSchema(Utilities.toJoiObject(Joi.object())), true);
   });
 
-  lab.test('hasJoiMeta', () => {
-    expect(Utilities.hasJoiMeta({})).to.equal(false);
-    expect(Utilities.hasJoiMeta(Joi.object())).to.equal(false);
-    expect(Utilities.hasJoiMeta(Joi.object().meta({ test: 'test' }))).to.equal(true);
+  it('hasJoiMeta', () => {
+    assert.deepStrictEqual(Utilities.hasJoiMeta({}), false);
+    assert.deepStrictEqual(Utilities.hasJoiMeta(Joi.object()), false);
+    assert.deepStrictEqual(Utilities.hasJoiMeta(Joi.object().meta({ test: 'test' })), true);
   });
 
-  lab.test('getJoiMetaProperty', () => {
-    expect(Utilities.getJoiMetaProperty({}, 'test')).to.equal(undefined);
-    expect(Utilities.getJoiMetaProperty(Joi.object(), 'test')).to.equal(undefined);
-    expect(Utilities.getJoiMetaProperty(Joi.object().meta({ test: 'test' }), 'test')).to.equal('test');
-    expect(Utilities.getJoiMetaProperty(Joi.object().meta({ test: 'test' }), 'nomatch')).to.equal(undefined);
+  it('getJoiMetaProperty', () => {
+    assert.deepStrictEqual(Utilities.getJoiMetaProperty({}, 'test'), undefined);
+    assert.deepStrictEqual(Utilities.getJoiMetaProperty(Joi.object(), 'test'), undefined);
+    assert.deepStrictEqual(Utilities.getJoiMetaProperty(Joi.object().meta({ test: 'test' }), 'test'), 'test');
+    assert.deepStrictEqual(Utilities.getJoiMetaProperty(Joi.object().meta({ test: 'test' }), 'nomatch'), undefined);
   });
 
-  lab.test('getJoiLabel', () => {
-    expect(Utilities.getJoiLabel({})).to.equal(null);
-    expect(Utilities.getJoiLabel(Joi.object())).to.equal(null);
-    expect(Utilities.getJoiLabel(Joi.object().label('MySchema'))).to.equal('MySchema');
+  it('getJoiLabel', () => {
+    assert.deepStrictEqual(Utilities.getJoiLabel({}), null);
+    assert.deepStrictEqual(Utilities.getJoiLabel(Joi.object()), null);
+    assert.deepStrictEqual(Utilities.getJoiLabel(Joi.object().label('MySchema')), 'MySchema');
 
-    expect(
+    assert.deepStrictEqual(
       Utilities.getJoiLabel(
         Joi.object({
           id: Joi.string()
         })
-      )
-    ).to.equal(null);
+      ),
+      null
+    );
 
-    expect(
+    assert.deepStrictEqual(
       Utilities.getJoiLabel(
         Joi.object({
           id: Joi.string()
         }).description('MyDescription')
-      )
-    ).to.equal(null);
+      ),
+      null
+    );
 
-    expect(
+    assert.deepStrictEqual(
       Utilities.getJoiLabel(
         Joi.object({
           id: Joi.string()
-        }).description('testDescription').label('MyLabel')
-      )
-    ).to.equal('MyLabel');
+        })
+          .description('testDescription')
+          .label('MyLabel')
+      ),
+      'MyLabel'
+    );
   });
 
-  lab.test('toTitleCase', () => {
-    expect(Utilities.toTitleCase('test')).to.equal('Test');
-    expect(Utilities.toTitleCase('tesT')).to.equal('Test');
-    expect(Utilities.toTitleCase('Test')).to.equal('Test');
-    expect(Utilities.toTitleCase('test Test')).to.equal('Test test');
+  it('toTitleCase', () => {
+    assert.deepStrictEqual(Utilities.toTitleCase('test'), 'Test');
+    assert.deepStrictEqual(Utilities.toTitleCase('tesT'), 'Test');
+    assert.deepStrictEqual(Utilities.toTitleCase('Test'), 'Test');
+    assert.deepStrictEqual(Utilities.toTitleCase('test Test'), 'Test test');
   });
 
-  lab.test('createId', () => {
-    expect(Utilities.createId('PUT', 'v1/sum/add/{a}/{b}')).to.equal('putV1SumAddAB');
-    expect(Utilities.createId('PUT', 'sum')).to.equal('putSum');
+  it('createId', () => {
+    assert.deepStrictEqual(Utilities.createId('PUT', 'v1/sum/add/{a}/{b}'), 'putV1SumAddAB');
+    assert.deepStrictEqual(Utilities.createId('PUT', 'sum'), 'putSum');
   });
 
-  lab.test('replaceInPath', () => {
+  it('replaceInPath', () => {
     const pathReplacements = [
       {
         replaceIn: 'all',
@@ -271,52 +287,57 @@ lab.experiment('utilities', () => {
       }
     ];
 
-    expect(Utilities.replaceInPath('api/v1/users', ['endpoints'], pathReplacements)).to.equal('api/users');
-    expect(Utilities.replaceInPath('api/v2/users', ['groups'], pathReplacements)).to.equal('api/users');
-    expect(Utilities.replaceInPath('api/users.get', ['groups'], pathReplacements)).to.equal('api/users');
-    expect(Utilities.replaceInPath('api/users.search', ['groups'], pathReplacements)).to.equal('api/users');
+    assert.deepStrictEqual(Utilities.replaceInPath('api/v1/users', ['endpoints'], pathReplacements), 'api/users');
+    assert.deepStrictEqual(Utilities.replaceInPath('api/v2/users', ['groups'], pathReplacements), 'api/users');
+    assert.deepStrictEqual(Utilities.replaceInPath('api/users.get', ['groups'], pathReplacements), 'api/users');
+    assert.deepStrictEqual(Utilities.replaceInPath('api/users.search', ['groups'], pathReplacements), 'api/users');
   });
 
-  lab.test('removeTrailingSlash', () => {
-    expect(Utilities.removeTrailingSlash('api/v1/users')).to.equal('api/v1/users');
-    expect(Utilities.removeTrailingSlash('api/v1/users/')).to.equal('api/v1/users');
-    expect(Utilities.removeTrailingSlash('/api/v1/users')).to.equal('/api/v1/users');
-    expect(Utilities.removeTrailingSlash('/api/v1/users/')).to.equal('/api/v1/users');
+  it('removeTrailingSlash', () => {
+    assert.deepStrictEqual(Utilities.removeTrailingSlash('api/v1/users'), 'api/v1/users');
+    assert.deepStrictEqual(Utilities.removeTrailingSlash('api/v1/users/'), 'api/v1/users');
+    assert.deepStrictEqual(Utilities.removeTrailingSlash('/api/v1/users'), '/api/v1/users');
+    assert.deepStrictEqual(Utilities.removeTrailingSlash('/api/v1/users/'), '/api/v1/users');
   });
 
-  lab.test('mergeVendorExtensions', () => {
-    expect(Utilities.assignVendorExtensions({ a: 1, b: 2 }, { 'x-a': 1, 'x-b': 2, c: 3 })).to.equal({
+  it('mergeVendorExtensions', () => {
+    assert.deepStrictEqual(Utilities.assignVendorExtensions({ a: 1, b: 2 }, { 'x-a': 1, 'x-b': 2, c: 3 }), {
       a: 1,
       b: 2,
       'x-a': 1,
       'x-b': 2
     });
-    expect(Utilities.assignVendorExtensions({ a: 1, b: 2 }, null)).to.equal({ a: 1, b: 2 });
-    expect(Utilities.assignVendorExtensions(null, null)).to.equal(null);
-    expect(Utilities.assignVendorExtensions(null, { 'x-a': 1, 'x-b': 2, c: 3 })).to.equal(null);
-    expect(Utilities.assignVendorExtensions({ a: 1, b: 2 }, { 'x-a': 1, 'x-b': null, c: 3 })).to.equal({
+    assert.deepStrictEqual(Utilities.assignVendorExtensions({ a: 1, b: 2 }, null), { a: 1, b: 2 });
+    assert.deepStrictEqual(Utilities.assignVendorExtensions(null, null), null);
+    assert.deepStrictEqual(Utilities.assignVendorExtensions(null, { 'x-a': 1, 'x-b': 2, c: 3 }), null);
+    assert.deepStrictEqual(Utilities.assignVendorExtensions({ a: 1, b: 2 }, { 'x-a': 1, 'x-b': null, c: 3 }), {
       a: 1,
       b: 2,
       'x-a': 1,
       'x-b': null
     });
-    expect(Utilities.assignVendorExtensions({ a: 1, b: 2, 'x-a': 100 }, { 'x-a': 1, 'x-b': 2, c: 3 })).to.equal({
+    assert.deepStrictEqual(Utilities.assignVendorExtensions({ a: 1, b: 2, 'x-a': 100 }, { 'x-a': 1, 'x-b': 2, c: 3 }), {
       a: 1,
       b: 2,
       'x-a': 1,
       'x-b': 2
     });
-    expect(Utilities.assignVendorExtensions({ a: 1, b: 2 }, { 'x-': 1 })).to.equal({ a: 1, b: 2 });
+    assert.deepStrictEqual(Utilities.assignVendorExtensions({ a: 1, b: 2 }, { 'x-': 1 }), { a: 1, b: 2 });
   });
 
-
-  lab.test('appendQueryString', () => {
-    expect(Utilities.appendQueryString('/test.json', 'tags', 'reduced')).to.equal('/test.json?tags=reduced');
-    expect(Utilities.appendQueryString('/test/test', 'tags', 'reduced')).to.equal('/test/test?tags=reduced');
-    expect(Utilities.appendQueryString('/test/test?tags=reduced', 'tags', 'reduced')).to.equal('/test/test?tags=reduced');
-    expect(Utilities.appendQueryString('/test/test?tags=reduced', 'tags', 'api')).to.equal('/test/test?tags=api');
-    expect(Utilities.appendQueryString('/swagger.json')).to.equal('/swagger.json');
-    expect(Utilities.appendQueryString('/swagger.json', 'query')).to.equal('/swagger.json');
-    expect(Utilities.appendQueryString('/swagger.json', '', 'query')).to.equal('/swagger.json');
+  it('appendQueryString', () => {
+    assert.deepStrictEqual(Utilities.appendQueryString('/test.json', 'tags', 'reduced'), '/test.json?tags=reduced');
+    assert.deepStrictEqual(Utilities.appendQueryString('/test/test', 'tags', 'reduced'), '/test/test?tags=reduced');
+    assert.deepStrictEqual(
+      Utilities.appendQueryString('/test/test?tags=reduced', 'tags', 'reduced'),
+      '/test/test?tags=reduced'
+    );
+    assert.deepStrictEqual(
+      Utilities.appendQueryString('/test/test?tags=reduced', 'tags', 'api'),
+      '/test/test?tags=api'
+    );
+    assert.deepStrictEqual(Utilities.appendQueryString('/swagger.json'), '/swagger.json');
+    assert.deepStrictEqual(Utilities.appendQueryString('/swagger.json', 'query'), '/swagger.json');
+    assert.deepStrictEqual(Utilities.appendQueryString('/swagger.json', '', 'query'), '/swagger.json');
   });
 });

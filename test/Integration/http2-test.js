@@ -1,15 +1,13 @@
-const Code = require('@hapi/code');
-const Lab = require('@hapi/lab');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 const Http2 = require('http2');
 const Fs = require('fs').promises;
 const Path = require('path');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('http2', () => {
+describe('http2', () => {
   const requestOptions = {
     method: 'GET',
     url: '/swagger.json',
@@ -27,7 +25,7 @@ lab.experiment('http2', () => {
     }
   };
 
-  lab.test('gets correct host', async () => {
+  it('gets correct host', async () => {
     const [key, cert] = await Promise.all([
       await Fs.readFile(Path.join(__dirname, '../certs/server.key')),
       await Fs.readFile(Path.join(__dirname, '../certs/server.crt'))
@@ -44,8 +42,8 @@ lab.experiment('http2', () => {
     };
     const server = await Helper.createServer({}, routes, options);
     const response = await server.inject({ ...requestOptions });
-    expect(response.result.host).to.equal(new URL(requestOptions.headers.referrer).host);
+    assert.deepStrictEqual(response.result.host, new URL(requestOptions.headers.referrer).host);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });

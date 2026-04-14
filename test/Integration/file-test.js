@@ -1,13 +1,11 @@
-const Code = require('@hapi/code');
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
+
 const Joi = require('joi');
-const Lab = require('@hapi/lab');
 const Helper = require('../helper.js');
 const Validate = require('../../lib/validate.js');
 
-const expect = Code.expect;
-const lab = (exports.lab = Lab.script());
-
-lab.experiment('file', () => {
+describe('file', () => {
   const routes = {
     method: 'POST',
     path: '/test/',
@@ -32,11 +30,11 @@ lab.experiment('file', () => {
     }
   };
 
-  lab.test('upload', async () => {
+  it('upload', async () => {
     const server = await Helper.createServer({}, routes);
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test/'].post.parameters, [
       {
         type: 'file',
         required: true,
@@ -48,15 +46,15 @@ lab.experiment('file', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('upload (OAS3)', async () => {
+  it('upload (OAS3)', async () => {
     const server = await Helper.createServer({ OAS: 'v3.0' }, routes);
     const response = await server.inject({ method: 'GET', url: '/openapi.json' });
-    expect(response.statusCode).to.equal(200);
+    assert.deepStrictEqual(response.statusCode, 200);
 
-    expect(response.result.paths['/test/'].post.requestBody.content).to.equal({
+    assert.deepStrictEqual(response.result.paths['/test/'].post.requestBody.content, {
       'multipart/form-data': {
         schema: {
           type: 'object',
@@ -74,10 +72,10 @@ lab.experiment('file', () => {
       }
     });
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('upload with binary file type', async () => {
+  it('upload with binary file type', async () => {
     routes.options.validate.payload = Joi.object({
       file: Joi.binary().meta({ swaggerType: 'file' }).required()
     });
@@ -86,8 +84,8 @@ lab.experiment('file', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test/'].post.parameters, [
       {
         type: 'file',
         format: 'binary',
@@ -100,10 +98,10 @@ lab.experiment('file', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 
-  lab.test('file type not fired on other meta properties', async () => {
+  it('file type not fired on other meta properties', async () => {
     routes.options.validate.payload = Joi.object({
       file: Joi.any().meta({ anything: 'test' }).required()
     });
@@ -112,8 +110,8 @@ lab.experiment('file', () => {
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
-    expect(response.statusCode).to.equal(200);
-    expect(response.result.paths['/test/'].post.parameters).to.equal([
+    assert.deepStrictEqual(response.statusCode, 200);
+    assert.deepStrictEqual(response.result.paths['/test/'].post.parameters, [
       {
         required: true,
         'x-meta': {
@@ -125,6 +123,6 @@ lab.experiment('file', () => {
       }
     ]);
     const isValid = await Validate.test(response.result);
-    expect(isValid).to.be.true();
+    assert.strictEqual(isValid, true);
   });
 });
