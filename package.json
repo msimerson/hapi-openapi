@@ -36,17 +36,16 @@
     "start:extend": "node examples/extend.js",
     "start:group:ordered": "node examples/group-ordered.js",
     "start:routes:simple": "node examples/group-ordered.js",
-    "test": "pnpm test:lib",
-    "test:lib": "c8 --check-coverage --lines 97 --include 'lib/**' node --test 'test/Integration/*-test.js' 'test/unit/*-test.js'",
-    "test:lib:debug": "node --test --inspect-brk 'test/Integration/*-test.js' 'test/unit/*-test.js'",
-    "test:ts": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test:cov:html": "c8 --reporter=html --include 'lib/**' node --test 'test/Integration/*-test.js' 'test/unit/*-test.js'",
+    "test": "pnpm test:lib",
+    "test:lib:debug": "node --test --inspect-brk 'test/Integration/*-test.js' 'test/unit/*-test.js'",
+    "test:ts": "tsc --noEmit",
+    "test:lib": "node --test --experimental-test-coverage --test-coverage-include='lib/**' --test-coverage-lines=97 'test/Integration/*-test.js' 'test/unit/*-test.js'",
     "precommit": "pnpm test",
     "postversion": "pnpm publish",
     "postpublish": "git push origin --all; git push origin --tags",
-    "prepare": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || husky install",
+    "prepare": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || husky",
     "clean": "rm -rf node_modules coverage"
   },
   "license": "MIT",
@@ -54,7 +53,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@hapi/inert": ">=7.x.x",
+    "@hapi/inert": "^7.1.0",
     "swagger-ui-dist": "^5.32.2"
   },
   "optionalDependencies": {
@@ -67,14 +66,13 @@
     "@hapi/h2o2": "^10.0.4",
     "@hapi/hapi": "^21.4.8",
     "@types/node": "^25.6.0",
-    "c8": "^11.0.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.5.0",
     "husky": "^9.1.7",
     "joi": "^18.1.2",
     "prettier": "^3.8.2",
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.2"
   },
   "peerDependencies": {
     "@hapi/hapi": ">=20.x.x",
