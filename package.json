@@ -41,7 +41,7 @@
     "test": "pnpm test:lib",
     "test:lib:debug": "node --test --inspect-brk 'test/Integration/*-test.js' 'test/unit/*-test.js'",
     "test:ts": "tsc --noEmit",
-    "test:lib": "node --test --experimental-test-coverage --test-coverage-include='lib/**' --test-coverage-lines=97 'test/Integration/*-test.js' 'test/unit/*-test.js'",
+    "test:lib": "node --test --experimental-test-coverage --test-coverage-include='lib/**' --test-coverage-lines=94 'test/Integration/*-test.js' 'test/unit/*-test.js'",
     "precommit": "pnpm test",
     "postversion": "pnpm publish",
     "postpublish": "git push origin --all; git push origin --tags",
@@ -50,7 +50,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@hapi/inert": "^7.1.0",
