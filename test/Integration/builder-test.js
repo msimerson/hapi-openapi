@@ -1,8 +1,10 @@
-const { describe, it, before } = require('node:test');
+const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 const Joi = require('joi');
 const Helper = require('../helper.js');
+
+after(() => Helper.cleanup());
 const Validate = require('../../lib/validate.js');
 
 const routes = [
@@ -272,7 +274,7 @@ describe('builder', () => {
     assert.deepStrictEqual(response.result.host, '194.148.15.24:7645');
   });
 
-  it("getSwaggerJSON doesn't specify port from request info when port is default", async () => {
+  it('getSwaggerJSON doesn\'t specify port from request info when port is default', async () => {
     const server = await Helper.createServer({});
 
     const response = await server.inject({

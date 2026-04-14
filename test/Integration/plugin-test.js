@@ -1,4 +1,4 @@
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 const __includes = (container, value) => {
@@ -6,6 +6,7 @@ const __includes = (container, value) => {
     if (Array.isArray(value)) {
       return value.every((v) => container.includes(v));
     }
+
     return container.includes(value);
   }
 
@@ -13,6 +14,7 @@ const __includes = (container, value) => {
     if (Array.isArray(value)) {
       return value.every((v) => container.includes(v));
     }
+
     return container.includes(value);
   }
 
@@ -20,9 +22,11 @@ const __includes = (container, value) => {
     if (Array.isArray(value)) {
       return value.every((k) => k in container);
     }
+
     if (typeof value === 'string') {
       return value in container;
     }
+
     if (value && typeof value === 'object') {
       for (const k of Object.keys(value)) {
         try {
@@ -46,6 +50,8 @@ const Joi = require('joi');
 const Pack = require('../../package.json');
 const HapiOpenapi = require('../../lib/index.js');
 const Helper = require('../helper.js');
+
+after(() => Helper.cleanup());
 const Validate = require('../../lib/validate.js');
 
 describe('plugin', () => {
@@ -73,7 +79,7 @@ describe('plugin', () => {
       const server = new Hapi.Server();
       await server.register([HapiOpenapi]);
       server.route(routes);
-      await server.start();
+      await server.initialize();
     } catch (err) {
       assert.deepStrictEqual(err.message, `Plugin ${Pack.name} missing dependency @hapi/inert`);
     }
@@ -84,7 +90,7 @@ describe('plugin', () => {
       const server = new Hapi.Server();
       await server.register([Inert, HapiOpenapi]);
       server.route(routes);
-      await server.start();
+      await server.initialize();
       assert.ok(server !== null && typeof server === 'object' && !Array.isArray(server));
     } catch (err) {
       assert.deepStrictEqual(err, undefined);
@@ -343,7 +349,7 @@ describe('plugin', () => {
     ]);
 
     server.route(routes);
-    await server.start();
+    await server.initialize();
     const response = await server.inject({ method: 'GET', url: '/implicitPrefix/documentation' });
     assert.deepStrictEqual(response.statusCode, 200);
     const htmlContent = response.result;

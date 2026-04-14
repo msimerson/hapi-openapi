@@ -51,7 +51,7 @@ describe('default grouping', () => {
         options: swaggerOptions
       }
     ]);
-    await server.start();
+    await server.initialize();
 
     const response = await server.inject({ method: 'GET', url: '/swagger.json' });
     assert.deepStrictEqual(response.statusCode, 200);
@@ -86,7 +86,7 @@ describe('default grouping', () => {
           options: swaggerOptions
         }
       ]);
-      await server.start();
+      await server.initialize();
       const response = await server.inject({ method: 'GET', url: '/swagger.json' });
       assert.deepStrictEqual(response.statusCode, 200);
       assert.deepStrictEqual(response.result.paths['/grouping1'], {
@@ -124,7 +124,7 @@ describe('default grouping', () => {
         }
       ]);
 
-      await server.start();
+      await server.initialize();
       const response = await server.inject({ method: 'GET', url: '/swagger.json' });
 
       assert.deepStrictEqual(response.statusCode, 200);

@@ -1,10 +1,12 @@
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 ('use strict');
 
 const Joi = require('joi');
 const Helper = require('../helper.js');
+
+after(() => Helper.cleanup());
 const Validate = require('../../lib/validate.js');
 
 describe('child-models (OpenAPI)', () => {

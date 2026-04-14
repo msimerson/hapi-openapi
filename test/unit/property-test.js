@@ -1,4 +1,4 @@
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 const __includes = (container, value) => {
@@ -6,6 +6,7 @@ const __includes = (container, value) => {
     if (Array.isArray(value)) {
       return value.every((v) => container.includes(v));
     }
+
     return container.includes(value);
   }
 
@@ -13,6 +14,7 @@ const __includes = (container, value) => {
     if (Array.isArray(value)) {
       return value.every((v) => container.includes(v));
     }
+
     return container.includes(value);
   }
 
@@ -20,9 +22,11 @@ const __includes = (container, value) => {
     if (Array.isArray(value)) {
       return value.every((k) => k in container);
     }
+
     if (typeof value === 'string') {
       return value in container;
     }
+
     if (value && typeof value === 'object') {
       for (const k of Object.keys(value)) {
         try {
@@ -44,6 +48,8 @@ const __includes = (container, value) => {
 const Joi = require('joi');
 const Hoek = require('@hapi/hoek');
 const Helper = require('../helper.js');
+
+after(() => Helper.cleanup());
 const Defaults = require('../../lib/defaults.js');
 const Properties = require('../../lib/properties.js');
 

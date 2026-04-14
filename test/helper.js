@@ -1,15 +1,38 @@
+const Basic = require('@hapi/basic');
 const H2o2 = require('@hapi/h2o2');
 const Hapi = require('@hapi/hapi');
-const JWT = require('jsonwebtoken');
 const { json: streamJson } = require('node:stream/consumers');
 const HapiOpenapi = require('../lib/index.js');
 
-const BEARER_SECRET = 'bearer-test-secret';
-const BEARER_PAYLOAD = { id: 1, scope: ['admin'] };
+const BASIC_USERNAME = 'admin';
+const BASIC_PASSWORD = 'secret';
+const BASIC_CREDENTIALS = {
+  id: 1,
+  scope: ['admin'],
+  user: { username: 'glennjones', name: 'Glenn Jones', groups: ['admin', 'user'] }
+};
+
+const validateBasic = (_request, username, password) => {
+  const isValid = username === BASIC_USERNAME && password === BASIC_PASSWORD;
+  return { isValid, credentials: isValid ? BASIC_CREDENTIALS : {} };
+};
 
 const helper = (module.exports = {});
 
-helper.validBearerToken = JWT.sign(BEARER_PAYLOAD, BEARER_SECRET);
+helper.validAuthHeader = 'Basic ' + Buffer.from(`${BASIC_USERNAME}:${BASIC_PASSWORD}`).toString('base64');
+
+const activeServers = new Set();
+
+const track = (server) => {
+  activeServers.add(server);
+  return server;
+};
+
+helper.cleanup = async () => {
+  const servers = [...activeServers];
+  activeServers.clear();
+  await Promise.all(servers.map((s) => s.stop().catch(() => {})));
+};
 
 /**
  * creates a Hapi server
@@ -32,8 +55,8 @@ helper.createServer = async (swaggerOptions, routes, serverOptions = {}) => {
     server.route(routes);
   }
 
-  await server.start();
-  return server;
+  await server.initialize();
+  return track(server);
 };
 
 /**
@@ -72,93 +95,59 @@ helper.createServerMultiple = async (swaggerOptions1, swaggerOptions2, routes, s
     server.route(routes);
   }
 
-  await server.start();
-  return server;
+  await server.initialize();
+  return track(server);
 };
 
 /**
- * creates a Hapi server using bearer token auth
+ * creates a Hapi server using basic auth, strategy named 'bearer'
  *
  * @param  {Object} swaggerOptions
  * @param  {Object} routes
- * @param  {Function} callback
  */
 helper.createAuthServer = async (swaggerOptions, routes, serverOptions = {}) => {
   const server = new Hapi.Server(serverOptions);
 
   await server.register([
     H2o2,
-    require('hapi-auth-jwt2'),
+    Basic,
     {
       plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);
 
-  server.auth.strategy('bearer', 'jwt', {
-    key: BEARER_SECRET,
-    validate: (decoded) => ({
-      isValid: decoded.id === BEARER_PAYLOAD.id,
-      credentials: {
-        ...decoded,
-        user: { username: 'glennjones', name: 'Glenn Jones', groups: ['admin', 'user'] }
-      }
-    }),
-    verifyOptions: { algorithms: ['HS256'] }
-  });
+  server.auth.strategy('bearer', 'basic', { validate: validateBasic });
   server.route(routes);
 
-  await server.start();
+  await server.initialize();
 
-  return server;
+  return track(server);
 };
 
 /**
- * creates a Hapi server using JWT auth
+ * creates a Hapi server using basic auth as default, strategy named 'jwt'
  *
  * @param  {Object} swaggerOptions
  * @param  {Object} routes
- * @param  {Function} callback
  */
 helper.createJWTAuthServer = async (swaggerOptions, routes) => {
-  const people = {
-    56732: {
-      id: 56732,
-      name: 'Jen Jones',
-      scope: ['a', 'b']
-    }
-  };
-  const privateKey = 'hapi hapi joi joi';
-  // const token = JWT.sign({ id: 56732 }, privateKey, { algorithm: 'HS256' });
-  const validateJWT = (decoded) => {
-    if (!people[decoded.id]) {
-      return { valid: false };
-    }
-
-    return { valid: true };
-  };
-
   const server = new Hapi.Server();
 
   await server.register([
-    require('hapi-auth-jwt2'),
+    Basic,
     {
       plugin: HapiOpenapi,
       options: swaggerOptions
     }
   ]);
 
-  server.auth.strategy('jwt', 'jwt', {
-    key: privateKey,
-    validate: validateJWT,
-    verifyOptions: { algorithms: ['HS256'] }
-  });
-
+  server.auth.strategy('jwt', 'basic', { validate: validateBasic });
   server.auth.default('jwt');
 
   server.route(routes);
-  await server.start();
-  return server;
+  await server.initialize();
+  return track(server);
 };
 
 /**

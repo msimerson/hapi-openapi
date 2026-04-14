@@ -1,8 +1,10 @@
-const { describe, it, before } = require('node:test');
+const { describe, it, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 const Joi = require('joi');
 const Helper = require('../helper.js');
+
+after(() => Helper.cleanup());
 
 describe('debug', () => {
   const routesEmptyObjects = {

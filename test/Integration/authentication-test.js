@@ -1,8 +1,10 @@
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
 
 const Joi = require('joi');
 const Helper = require('../helper.js');
+
+after(() => Helper.cleanup());
 const Validate = require('../../lib/validate.js');
 
 describe('default `auth` settings', () => {
@@ -29,7 +31,7 @@ describe('default `auth` settings', () => {
           }
         },
         handler: function (request, h) {
-          h.response({ text: `You used a Token! ${request.auth.credentials.name}` }).header(
+          h.response({ text: `You used credentials! ${request.auth.credentials.user?.name}` }).header(
             'Authorization',
             request.headers.authorization
           );
@@ -62,7 +64,7 @@ describe('default `auth` settings', () => {
 });
 
 describe('authentication', () => {
-  // route using bearer token auth
+  // route using bearer (basic) auth
   const routes = {
     method: 'POST',
     path: '/bookmarks/',
@@ -82,7 +84,7 @@ describe('authentication', () => {
       },
       validate: {
         headers: Joi.object({
-          authorization: Joi.string().default('Bearer 12345').description('bearer token')
+          authorization: Joi.string().default('Basic YWRtaW46c2VjcmV0').description('basic auth credentials')
         }).unknown(),
 
         payload: Joi.object({
@@ -92,12 +94,12 @@ describe('authentication', () => {
     }
   };
 
-  it('get plug-in interface with bearer token', async () => {
+  it('get plug-in interface with valid credentials', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/swagger.json',
       headers: {
-        authorization: `Bearer ${Helper.validBearerToken}`
+        authorization: Helper.validAuthHeader
       }
     };
 
@@ -109,7 +111,7 @@ describe('authentication', () => {
     assert.strictEqual(isValid, true);
   });
 
-  it('get plug-in interface without bearer token', async () => {
+  it('get plug-in interface without credentials', async () => {
     const requestOptions = {
       method: 'GET',
       url: '/swagger.json'
@@ -150,12 +152,12 @@ describe('authentication', () => {
     );
   });
 
-  it('get API interface with bearer token', async () => {
+  it('get API interface with valid credentials', async () => {
     const requestOptions = {
       method: 'POST',
       url: '/bookmarks/',
       headers: {
-        authorization: `Bearer ${Helper.validBearerToken}`
+        authorization: Helper.validAuthHeader
       },
       payload: {
         url: 'http://glennjones.net'
@@ -167,12 +169,12 @@ describe('authentication', () => {
     assert.deepStrictEqual(response.statusCode, 200);
   });
 
-  it('get API interface with incorrect bearer token', async () => {
+  it('get API interface with incorrect credentials', async () => {
     const requestOptions = {
       method: 'POST',
       url: '/bookmarks/',
       headers: {
-        authorization: 'Bearer XXXXXX'
+        authorization: 'Basic d3Jvbmc6d3Jvbmc='
       },
       payload: {
         url: 'http://glennjones.net'
