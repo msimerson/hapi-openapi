@@ -34,6 +34,9 @@ importers:
       '@hapi/hapi':
         specifier: ^21.4.8
         version: 21.4.8
+      '@hapi/hoek':
+        specifier: ^11.0.7
+        version: 11.0.7
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
