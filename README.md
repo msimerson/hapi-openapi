@@ -1,26 +1,17 @@
 # hapi-openapi
 
-This is a [OpenAPI (aka Swagger)](https://openapis.org/) plug-in for [Hapi](https://hapi.dev/) When installed it will self document the API interface
-in a project.
+This is a [OpenAPI](https://openapis.org/) plug-in for [Hapi](https://hapi.dev/) When installed it will self document the API interface in a project.
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/msimerson/hapi-openapi/ci.yml?style=for-the-badge)
-[![npm downloads](https://img.shields.io/npm/dm/hapi-openapi.svg?style=for-the-badge)](https://www.npmjs.com/package/hapi-openapi)
+[![npm downloads](https://img.shields.io/npm/dm/hapi-openapi.svg?style=for-the-badge)](https://www.npmjs.com/package/@msimerson/hapi-openapi)
 [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](https://raw.github.com/msimerson/hapi-openapi/master/license.txt)
 
 ## Compatibility
 
-| Version | [Hapi](https://github.com/hapijs/hapi) | [Joi](https://github.com/sideway/joi) | Node   | Release Notes                                                                |
-| ------- | -------------------------------------- | ------------------------------------- | ------ | ---------------------------------------------------------------------------- |
-| `17.x`  | `>=20.0.0 @hapi/hapi`                  | `>=17.0.0 joi`                        | `>=16` | [Release](https://github.com/hapi-swagger/hapi-swagger/releases/tag/v17.0.0) |
-| `16.x`  | `>=20.0.0 @hapi/hapi`                  | `>=17.0.0 joi`                        | `>=14` | [#795](https://github.com/hapi-swagger/hapi-swagger/issues/795)              |
-| `15.x`  | `>=20.0.0 @hapi/hapi`                  | `>=17.0.0 joi`                        | `>=14` | [#782](https://github.com/hapi-swagger/hapi-swagger/issues/782)              |
-| `14.x`  | `>=19.0.0 @hapi/hapi`                  | `>=17.0.0 joi`                        | `>=12` | [#680](https://github.com/hapi-swagger/hapi-swagger/issues/680)              |
-| `13.x`  | `>=19.0.0 @hapi/hapi`                  | `>=17.0.0 @hapi/joi`                  | `>=12` | [#660](https://github.com/hapi-swagger/hapi-swagger/issues/660)              |
-| `12.x`  | `>=19.0.0 @hapi/hapi`                  | `>=17.0.0 @hapi/joi`                  | `>=12` | [#644](https://github.com/hapi-swagger/hapi-swagger/issues/644)              |
-| `11.x`  | `>=18.4.0 @hapi/hapi`                  | `>=16.0.0 @hapi/joi`                  | `>=8`  | [#631](https://github.com/hapi-swagger/hapi-swagger/issues/631)              |
-| `10.x`  | `>=18.3.1 @hapi/hapi`                  | `>=14.0.0 @hapi/joi`                  | `>=8`  | [#587](https://github.com/hapi-swagger/hapi-swagger/issues/587)              |
-| `9.x`   | `>=17 hapi`                            | `<14.0.0`                             | `>=8`  | [#487](https://github.com/hapi-swagger/hapi-swagger/issues/487)              |
-| `7.x`   | `<17 hapi`                             | ???                                   | ???    | [#325](https://github.com/hapi-swagger/hapi-swagger/issues/325)              |
+| Version | [@hapi/hapi][hapi] | [Joi][joi] | Node   | Release Notes |
+| ------- | ---------------- | ------------ | ------ | ------------- |
+| `18`    | `>=21.0.0`      | `>=18.0.0 joi` | >= 22 | [Release][rel18] |
+| `17.x`  | `>=20.0.0`      | `>=17.0.0 joi` | `>=16` | [Use old versions][old-repo] |
 
 ## Installation
 
@@ -28,18 +19,6 @@ You can add the module to your Hapi using npm:
 
 ```bash
 > npm install @msimerson/hapi-openapi --save
-```
-
-**hapi-openapi** no longer bundles `joi` to fix [#648](https://github.com/hapi-swagger/hapi-swagger/issues/648). Install **hapi-openapi** with peer dependencies using:
-
-```bash
-npx install-peerdeps @msimerson/hapi-openapi
-```
-
-If you want to view the documentation from your API you will also need to install the `inert` plugs-in which support templates and static content serving.
-
-```bash
-> npm install @hapi/inert --save
 ```
 
 ## Documentation
@@ -117,8 +96,7 @@ HTML page (see next section).
 }
 ```
 
-Once you have tagged your routes start the application. **The plugin adds a page into your site with the route `/documentation`**,
-so the the full URL for the above options would be `http://localhost:3000/documentation`.
+Once you have tagged your routes start the application. **The plugin adds a page into your site with the route `/documentation`**, so the the full URL for the above options would be `http://localhost:3000/documentation`.
 
 ### Typescript
 
@@ -160,6 +138,12 @@ Read the [contributing guidelines](./.github/CONTRIBUTING.md) for details.
 
 ## Credits
 
-**hapi-openapi** was created by [Glenn Jones](https://github.com/glennjones) in 2013. Over the years it was maintained by [Robert McGuinness](https://github.com/robmcguinness) and many community contributors. The upstream repository at [msimerson/hapi-openapi](https://github.com/msimerson/hapi-openapi) is now archived.
+**hapi-openapi** was created by [Glenn Jones](https://github.com/glennjones) in 2013. Over the years it was maintained by [Robert McGuinness](https://github.com/robmcguinness) and many community contributors. The upstream repository at [hapi-swagger/hapi-swagger][old-repo] is now archived.
 
-This fork ([msimerson/hapi-openapi](https://github.com/msimerson/hapi-openapi)) is maintained by [Matt Simerson](https://github.com/msimerson).
+This fork ([msimerson/hapi-openapi][ms-api]) is maintained by [Matt Simerson](https://github.com/msimerson).
+
+[hapi]: https://github.com/hapijs/hapi
+[joi]: https://github.com/hapijs/joi
+[ms-api]: https://github.com/msimerson/hapi-openapi
+[old-repo]: https://github.com/hapi-swagger/hapi-swagger
+[rel18]: https://github.com/msimerson/hapi-openapi/releases/tag/v18.0.0
