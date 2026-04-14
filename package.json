@@ -66,7 +66,7 @@
     "@hapi/basic": "^7.0.2",
     "@hapi/h2o2": "^10.0.4",
     "@hapi/hapi": "^21.4.8",
-    "c8": "^10.1.3",
+    "c8": "^11.0.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.5.0",
