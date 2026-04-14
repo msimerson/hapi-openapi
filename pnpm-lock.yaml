@@ -12,8 +12,8 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0
       swagger-ui-dist:
-        specifier: ^5.32.2
-        version: 5.32.2
+        specifier: ^5.32.3
+        version: 5.32.3
     optionalDependencies:
       '@apidevtools/json-schema-ref-parser':
         specifier: ^15.3.5
@@ -536,8 +536,8 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  swagger-ui-dist@5.32.2:
-    resolution: {integrity: sha512-t6Ns52nS8LU2hqi0+rezMjFO1ZrCsCrnommXrU7Nfrg2va2dWahdvM6TuSwzdHpG29v6BHJyU1c/UWFhgVZzVQ==}
+  swagger-ui-dist@5.32.3:
+    resolution: {integrity: sha512-ouo/DVF5xoBqxUiu1nB9ykDIlXmRs5sesdwHBN6wEKCBfS/e0IrzXBgMBQqsQ1iykjYUhQFprZCw1lOHuSxCyg==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -1104,7 +1104,7 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  swagger-ui-dist@5.32.2:
+  swagger-ui-dist@5.32.3:
     dependencies:
       '@scarf/scarf': 1.4.0
 
