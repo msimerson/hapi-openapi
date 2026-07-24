@@ -1,7 +1,8 @@
 name: release
 
 on:
-  workflow_call:
+  push:
+    branches: [main, master]
     outputs:
       changed:
         description: Whether the package version changed
