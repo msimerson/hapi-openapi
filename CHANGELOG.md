@@ -4,6 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [18.0.2] - 2026-07-24
+
+- bump version (automated release test)
+
+### [18.0.1] - 2026-04-14
+
+- use object spread syntax to prevent prototype pollution
+- don't allow JS strings, opens XSS opportunities
+
 ### [18.0.0] - 2026-04-13
 
 The major focus of this release was joi 18 and transforming this into a more svelte, secure, and maintainable module with a dramatically smaller install, no unmaintained dependencies, and a greatly reduced attack surface.
