@@ -1,7 +1,7 @@
 {
   "name": "@msimerson/hapi-openapi",
   "description": "A swagger documentation UI generator plugin for hapi",
-  "version": "18.0.2",
+  "version": "18.0.3",
   "author": "Glenn Jones (https://github.com/glennjones)",
   "contributors": [
     "Robert McGuinness (https://github.com/robmcguinness)",
@@ -55,27 +55,27 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "@hapi/inert": "^7.1.0",
-    "swagger-ui-dist": "^5.32.3"
+    "@hapi/inert": "^7.1.2",
+    "swagger-ui-dist": "^5.32.11"
   },
   "optionalDependencies": {
-    "@apidevtools/json-schema-ref-parser": "^15.3.5",
-    "@apidevtools/swagger-parser": "^12.1.0"
+    "@apidevtools/json-schema-ref-parser": "^15.5.0"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^12.1.0",
     "@eslint/js": "^10.0.1",
     "@hapi/basic": "^7.0.2",
     "@hapi/h2o2": "^10.0.4",
-    "@hapi/hapi": "^21.4.8",
+    "@hapi/hapi": "^21.4.10",
     "@hapi/hoek": "^11.0.7",
-    "@types/node": "^25.6.0",
-    "eslint": "^10.2.0",
+    "@types/node": "^26.1.1",
+    "eslint": "10.7.0",
     "eslint-config-prettier": "^10.1.8",
-    "globals": "^17.5.0",
+    "globals": "^17.7.0",
     "husky": "^9.1.7",
-    "joi": "^18.1.2",
-    "prettier": "^3.8.2",
-    "typescript": "^6.0.2"
+    "joi": "^18.2.3",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
   },
   "peerDependencies": {
     "@hapi/hapi": ">=20.x.x",
@@ -86,5 +86,5 @@
     "singleQuote": true,
     "trailingComma": "none"
   },
-  "packageManager": "pnpm@9.1.4+sha512.9df9cf27c91715646c7d675d1c9c8e41f6fce88246f1318c1aa6a1ed1aeb3c4f032fcdf4ba63cc69c4fe6d634279176b5358727d8f2cc1e65b65f43ce2f8bfb0"
+  "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72"
 }

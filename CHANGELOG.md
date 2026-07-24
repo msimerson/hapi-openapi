@@ -4,6 +4,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [18.0.3] - 2026-07-24
+
+- change: @apidevtools/swagger-parser: optionalDependencies → devDependencies
+- change: @apidevtools/json-schema-ref-parser: ^15.3.5 → ^15.5.0
+- change: @hapi/inert: ^7.1.0 → ^7.1.2
+- change: joi (dev): ^18.1.2 → ^18.2.3
+- change: pnpm.overrides (@hapi/content, @hapi/wreck, brace-expansion, fast-uri, flatted, js-yaml)
+
 ### [18.0.2] - 2026-07-24
 
 - bump version (automated release test)
