@@ -1,38 +1,97 @@
-name: Release
+name: release
 
 on:
-  push:
-    tags:
-      - '*'
-  workflow_dispatch:
+  workflow_call:
+    outputs:
+      changed:
+        description: Whether the package version changed
+        value: ${{ jobs.version.outputs.changed }}
+      version:
+        description: The package version from package.json
+        value: ${{ jobs.version.outputs.version }}
+
+env:
+  CI: true
 
 jobs:
-  release:
-    name: 'Release'
-    runs-on: 'ubuntu-latest'
+  version:
+    runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      version: ${{ steps.check.outputs.version }}
     steps:
-      - uses: GitHubSecurityLab/actions-permissions/monitor/@v1
-      - name: 'Create release'
-        uses: 'actions/github-script@v9'
+      - uses: actions/checkout@v6
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          script: |
-            const { GITHUB_REF_NAME } = process.env;
-            try {
-              const response = await github.rest.repos.createRelease({
-                draft: false,
-                generate_release_notes: true,
-                name: GITHUB_REF_NAME,
-                owner: context.repo.owner,
-                prerelease: false,
-                repo: context.repo.repo,
-                tag_name: GITHUB_REF_NAME,
-              });
+          fetch-depth: 2 # last 2 commits
+      - name: check version change
+        id: check
+        run: |
+          PREV_VERSION=$(git show HEAD^:package.json | jq -r .version)
+          CURR_VERSION=$(jq -r .version package.json)
+          echo "Previous: $PREV_VERSION"
+          echo "Current:  $CURR_VERSION"
+          if [ "$PREV_VERSION" != "$CURR_VERSION" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+          echo "version=$CURR_VERSION" >> $GITHUB_OUTPUT
 
-              core.exportVariable('RELEASE_ID', response.data.id);
-              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
-            } catch (error) {
-              core.setFailed(error.message);
-            }
+  build:
+    needs: version
+    if: needs.version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+      - run: npm install
+      - run: npm test
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to create tags and releases
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # fetch all tags
+      - id: tag-check
+        run: |
+          TAG="v${{ needs.version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Git tag and push
+        if: steps.tag-check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag v${{ needs.version.outputs.version }}
+          git push origin v${{ needs.version.outputs.version }}
+      - name: Create GitHub Release
+        if: steps.tag-check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          name: ${{ needs.version.outputs.version }}
+          generate_release_notes: false
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: npm publish --access public

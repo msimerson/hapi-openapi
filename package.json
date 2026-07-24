@@ -1,7 +1,7 @@
 {
   "name": "@msimerson/hapi-openapi",
   "description": "A swagger documentation UI generator plugin for hapi",
-  "version": "18.0.0",
+  "version": "18.0.2",
   "author": "Glenn Jones (https://github.com/glennjones)",
   "contributors": [
     "Robert McGuinness (https://github.com/robmcguinness)",
@@ -46,7 +46,9 @@
     "postversion": "pnpm publish",
     "postpublish": "git push origin --all; git push origin --tags",
     "prepare": "node -e \"process.exit(process.env.CI ? 0 : 1)\" || husky",
-    "clean": "rm -rf node_modules coverage"
+    "clean": "rm -rf node_modules coverage",
+    "versions": "npx npm-dep-mgr check",
+    "versions:fix": "npx npm-dep-mgr update"
   },
   "license": "MIT",
   "engines": {
